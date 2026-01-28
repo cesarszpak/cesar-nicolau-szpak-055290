@@ -1,47 +1,62 @@
 version: "3.9"
 
 services:
-
-  db:
-    image: postgres:16
-    container_name: db
-    environment:
-      POSTGRES_DB: appdb
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app123
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-  minio:
-    image: minio/minio
-    container_name: minio
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: admin123
+  api:
+    build:
+      context: ./backend
+    container_name: artistas-api
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
-
-  backend:
-    build: ./backend
-    container_name: backend
+      - "8080:8080"
     depends_on:
       - db
       - minio
-    ports:
-      - "8080:8080"
+    networks:
+      - app-network
 
   frontend:
-    build: ./frontend
-    container_name: frontend
-    depends_on:
-      - backend
+    build:
+      context: ./frontend
+    container_name: artistas-frontend
     ports:
       - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16
+    container_name: artistas-db
+    environment:
+      POSTGRES_DB: artistas
+      POSTGRES_USER: artistas
+      POSTGRES_PASSWORD: artistas
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: artistas-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  db_data:
+  postgres_data:
   minio_data:
