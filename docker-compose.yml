@@ -13,16 +13,16 @@ services:
     networks:
       - app-network
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #   container_name: artistas-frontend
-  #   ports:
-  #     - "3000:80"
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - app-network
+  frontend:
+    build:
+      context: ./frontend
+    container_name: artistas-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - app-network
 
   db:
     image: postgres:16
