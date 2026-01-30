@@ -7,6 +7,7 @@ import br.com.seuorg.artistas_api.application.dto.UsuarioResponseDTO;
 import br.com.seuorg.artistas_api.application.service.UsuarioService;
 import br.com.seuorg.artistas_api.domain.entity.Usuario;
 import br.com.seuorg.artistas_api.security.JwtUtil;
+import br.com.seuorg.artistas_api.application.service.RefreshTokenService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +23,12 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
-    public UsuarioController(UsuarioService usuarioService, JwtUtil jwtUtil) {
+    public UsuarioController(UsuarioService usuarioService, JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
         this.usuarioService = usuarioService;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/api/usuarios")
@@ -68,6 +71,26 @@ public class UsuarioController {
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequestDTO dto) {
         Usuario usuario = usuarioService.autenticar(dto);
         String token = jwtUtil.generateToken(usuario);
-        return ResponseEntity.ok(new AuthResponse(token));
+        // create refresh token
+        var refresh = refreshTokenService.createRefreshToken(usuario);
+        return ResponseEntity.ok(new AuthResponse(token, refresh.getToken()));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestBody String refreshToken) {
+        // simple body: raw token string
+        var maybe = refreshTokenService.findByToken(refreshToken);
+        if (maybe.isEmpty()) return ResponseEntity.<AuthResponse>status(401).build();
+        var rt = maybe.get();
+        if (rt.getExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+            refreshTokenService.deleteByToken(refreshToken);
+            return ResponseEntity.<AuthResponse>status(401).build();
+        }
+        Usuario usuario = rt.getUsuario();
+        String token = jwtUtil.generateToken(usuario);
+        // rotate refresh token: delete old and create new
+        refreshTokenService.deleteByToken(refreshToken);
+        var newRefresh = refreshTokenService.createRefreshToken(usuario);
+        return ResponseEntity.ok(new AuthResponse(token, newRefresh.getToken()));
     }
 }

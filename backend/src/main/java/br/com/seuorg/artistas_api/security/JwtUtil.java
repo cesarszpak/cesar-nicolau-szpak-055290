@@ -16,18 +16,18 @@ import java.util.Date;
 public class JwtUtil {
 
     private final SecretKey key;
-    private final int expirationHours;
+    private final int expirationMinutes;
 
     public JwtUtil(@Value("${jwt.secret}") String secret,
-                   @Value("${jwt.expiration-hours}") int expirationHours) {
+                   @Value("${jwt.expiration-minutes:5}") int expirationMinutes) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expirationHours = expirationHours;
+        this.expirationMinutes = expirationMinutes;
     }
 
     public String generateToken(Usuario usuario) {
         ZonedDateTime now = ZonedDateTime.now();
         Date issuedAt = Date.from(now.toInstant());
-        Date exp = Date.from(now.plusHours(expirationHours).toInstant());
+        Date exp = Date.from(now.plusMinutes(expirationMinutes).toInstant());
 
         return Jwts.builder()
                 .setSubject(usuario.getEmail())
@@ -36,5 +36,22 @@ public class JwtUtil {
                 .setExpiration(exp)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getSubject(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Date getExpiration(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
     }
 }

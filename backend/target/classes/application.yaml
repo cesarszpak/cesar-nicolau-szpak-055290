@@ -27,4 +27,7 @@ management:
 
 jwt:
   secret: replace_with_a_secure_random_key_of_at_least_32_bytes_long
-  expiration-hours: 5
+  expiration-minutes: 5
+
+frontend:
+  url: http://localhost:3000
