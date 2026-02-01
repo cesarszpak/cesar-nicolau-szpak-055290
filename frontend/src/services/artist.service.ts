@@ -42,5 +42,9 @@ const searchByName = (
     `/api/artistas/buscar/nome?nome=${encodeURIComponent(nome)}&ordem=${ordem}&page=${page}&size=${size}`
   ) as Promise<Page<Artist>>
 
+// Cria um novo artista
+const create = (dto: { nome: string }) =>
+  api.post('/api/artistas', dto) as Promise<Artist>
+
 // Exporta os métodos do serviço de artistas
-export const artistService = { list, searchByName }
+export const artistService = { list, searchByName, create }

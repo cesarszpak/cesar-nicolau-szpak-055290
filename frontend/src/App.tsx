@@ -4,6 +4,7 @@ import Login from './pages/Login'
 
 // Importação lazy da página de artistas para carregamento sob demanda
 const Artists = React.lazy(() => import('./pages/Artists'))
+const ArtistCreate = React.lazy(() => import('./pages/ArtistCreate'))
 
 import { authFacade } from './facades/auth.facade'
 import SiteNav from './components/SiteNav'
@@ -79,6 +80,16 @@ function App() {
             element={
               <PrivateRoute>
                 <Artists />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Rota para criar novo artista */}
+          <Route
+            path="/artistas/novo"
+            element={
+              <PrivateRoute>
+                <ArtistCreate />
               </PrivateRoute>
             }
           />
