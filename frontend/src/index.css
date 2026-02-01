@@ -1,8 +1,13 @@
+/* Importa as camadas base do Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Font Faces */
+/* =========================
+   Fontes personalizadas
+   ========================= */
+
+/* Fonte UniNeue Regular */
 @font-face {
   font-family: UniNeueRegular;
   src: url('/src/assets/fonts/UniNeueRegular.otf');
@@ -10,6 +15,8 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* Fonte UniNeue Bold */
 @font-face {
   font-family: UniNeueBold;
   src: url('/src/assets/fonts/UniNeueBold.otf');
@@ -17,6 +24,8 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* Fonte UniNeue Black */
 @font-face {
   font-family: UniNeueBlack;
   src: url('/src/assets/fonts/UniNeueBlack.otf');
@@ -24,6 +33,8 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* Fonte UniNeue Bold Italic */
 @font-face {
   font-family: UniNeueBold-Italic;
   src: url('/src/assets/fonts/UniNeueBold-Italic.otf');
@@ -31,6 +42,8 @@
   font-style: italic;
   font-display: swap;
 }
+
+/* Fonte UniNeue Book */
 @font-face {
   font-family: UniNeueBook;
   src: url('/src/assets/fonts/UniNeueBook.otf');
@@ -38,6 +51,8 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* Fonte UniNeue Heavy */
 @font-face {
   font-family: UniNeueHeavy;
   src: url('/src/assets/fonts/UniNeueHeavy.otf');
@@ -46,26 +61,39 @@
   font-display: swap;
 }
 
+/* =========================
+   Variáveis globais
+   ========================= */
 :root {
+  /* Fonte principal da aplicação */
   --font-primary: 'UniNeueRegular', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
 
+/* Garante altura total da aplicação */
 html, body, #root {
   height: 100%;
 }
+
+/* Define a fonte padrão do body */
 body {
   font-family: var(--font-primary);
 }
 
+/* =========================
+   Componentes customizados
+   ========================= */
 @layer components {
-  /* Login layout */
+
+  /* ---------- Layout de Login ---------- */
   .bg-login {
     @apply bg-gray-50 min-h-screen flex flex-col justify-center items-center;
   }
 
   .card-login {
     @apply bg-white mt-6 w-full overflow-hidden px-8 py-8 sm:max-w-md sm:rounded-lg;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    /* Sombra suave para o card */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08),
+                0 8px 10px -6px rgba(0, 0, 0, 0.04);
     transition: all 0.18s ease;
   }
 
@@ -82,13 +110,18 @@ body {
   }
 
   .form-input-login {
-    @apply mt-1 block w-full rounded-md border border-gray-200 shadow-sm focus:border-gray-300 focus:ring focus:ring-gray-200 focus:outline-none px-3 py-2 text-gray-800 placeholder-gray-500;
+    @apply mt-1 block w-full rounded-md border border-gray-200 shadow-sm
+           focus:border-gray-300 focus:ring focus:ring-gray-200
+           focus:outline-none px-3 py-2 text-gray-800 placeholder-gray-500;
     transition: all 0.18s ease-in-out;
   }
 
+  /* Efeito visual ao focar no input */
   .form-input-login:focus {
     transform: translateY(-1px);
-    box-shadow: 0 6px 10px -4px rgba(0,0,0,0.06), 0 2px 4px -1px rgba(0,0,0,0.04), 0 0 0 3px rgba(59,130,246,0.08);
+    box-shadow: 0 6px 10px -4px rgba(0,0,0,0.06),
+                0 2px 4px -1px rgba(0,0,0,0.04),
+                0 0 0 3px rgba(59,130,246,0.08);
   }
 
   .btn-group-login {
@@ -96,10 +129,85 @@ body {
   }
 
   .link-login {
-    @apply text-base text-primary hover:text-blue-700 hover:no-underline transition-colors;
+    @apply text-base hover:text-blue-700 hover:no-underline transition-colors;
+    color: #183181;
   }
 
   .btn-primary {
-    @apply bg-primary text-white text-sm px-4 py-2 rounded hover:bg-blue-600 transition-colors cursor-pointer;
+    @apply text-white text-sm px-4 py-2 rounded hover:bg-[#12245c]
+           transition-colors cursor-pointer;
+    background-color: #183181;
   }
+
+  /* ---------- Navegação do site ---------- */
+  .site-nav {
+    @apply border-b shadow;
+    background-color: #183181;
+    border-color: #12245c;
+  }
+
+  .site-container { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+  .site-brand { @apply h-10 w-auto; }
+  .nav-links { @apply hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8; }
+
+  .nav-link {
+    @apply inline-flex items-center px-3 pt-1 border-b-2 text-base font-semibold
+           transition text-white border-transparent
+           hover:text-blue-200 hover:border-blue-200;
+  }
+
+  .mobile-menu { @apply sm:hidden hidden; }
+
+  /* ---------- Tela de carregamento ---------- */
+  .loading-screen {
+    @apply fixed inset-0 z-50 flex items-center justify-center
+           bg-black/10 dark:bg-gray-900/30;
+  }
+
+  .spinner {
+    @apply animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500;
+  }
+
+  /* ---------- Cards e grid de artistas ---------- */
+  .artist-grid {
+    @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .card-artist {
+    @apply bg-white rounded-lg p-4 shadow hover:shadow-md transition;
+  }
+
+  /****** Início Alertas ******/
+
+  /* Alerta primário */
+  .alert-primary {
+    @apply p-3 my-3 text-sm text-blue-800 rounded-lg bg-blue-100
+           border border-blue-200;
+  }
+
+  /* Alerta informativo */
+  .alert-info {
+    @apply p-3 my-3 text-sm text-cyan-800 rounded-lg bg-cyan-100
+           border border-cyan-200;
+  }
+
+  /* Alerta de sucesso */
+  .alert-success {
+    @apply p-3 my-3 text-sm text-green-800 rounded-lg bg-green-100
+           border border-green-200;
+  }
+
+  /* Alerta de aviso */
+  .alert-warning {
+    @apply p-3 my-3 text-sm text-yellow-800 rounded-lg bg-yellow-100
+           border border-yellow-200;
+  }
+
+  /* Alerta de erro */
+  .alert-danger {
+    @apply p-3 my-3 text-sm text-red-800 rounded-lg bg-red-100
+           border border-red-200;
+  }
+
+  /****** Fim Alertas ******/
 }

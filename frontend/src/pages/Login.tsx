@@ -52,7 +52,7 @@ const Login: React.FC = () => {
 
         {/* Exibe mensagem de erro, se existir */}
         {error && (
-          <div className="text-sm text-red-600 mb-2">
+          <div className="alert-danger">
             {error}
           </div>
         )}
@@ -76,7 +76,7 @@ const Login: React.FC = () => {
           <input
             className="form-input-login"
             type="password"
-            placeholder="••••••••"
+            placeholder="******"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             required
@@ -85,10 +85,6 @@ const Login: React.FC = () => {
 
         {/* Ações do formulário */}
         <div className="btn-group-login">
-          {/* Link para recuperação de senha */}
-          <a className="link-login" href="#/forgot">
-            Esqueceu a senha?
-          </a>
 
           {/* Botão de submit com estado de loading */}
           <button className="btn-primary" disabled={loading} type="submit">

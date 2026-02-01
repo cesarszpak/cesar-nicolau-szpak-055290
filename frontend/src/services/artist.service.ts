@@ -1,0 +1,46 @@
+import api from './api' 
+
+// Interface que representa um artista retornado pela API
+export interface Artist {
+  id: number
+  nome: string
+  albumCount: number
+}
+
+// Interface genérica para respostas paginadas
+export interface Page<T> {
+  // Lista de registros da página atual
+  content: T[]
+
+  // Total de registros encontrados
+  totalElements: number
+
+  // Total de páginas disponíveis
+  totalPages: number
+
+  // Quantidade de registros por página
+  size: number
+
+  // Número da página atual (base 0)
+  number: number
+}
+
+// Recupera a lista de artistas com paginação
+const list = (page = 0, size = 10) =>
+  api.get(
+    `/api/artistas?page=${page}&size=${size}`
+  ) as Promise<Page<Artist>>
+
+// Busca artistas pelo nome com ordenação e paginação
+const searchByName = (
+  nome: string,
+  ordem: 'asc' | 'desc' = 'asc',
+  page = 0,
+  size = 10
+) =>
+  api.get(
+    `/api/artistas/buscar/nome?nome=${encodeURIComponent(nome)}&ordem=${ordem}&page=${page}&size=${size}`
+  ) as Promise<Page<Artist>>
+
+// Exporta os métodos do serviço de artistas
+export const artistService = { list, searchByName }

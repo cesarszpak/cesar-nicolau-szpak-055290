@@ -3,8 +3,9 @@ import type { AxiosRequestConfig } from 'axios'
 
 /**
  * URL base da API obtida a partir das variáveis de ambiente do Vite
+ * Se não informado, assume o host atual na porta 8080 (útil em dev/docker)
  */
-const API_URL = import.meta.env.VITE_API_URL ?? ''
+const API_URL = import.meta.env.VITE_API_URL ?? (typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:8080` : '')
 
 /**
  * Opções customizadas para a requisição HTTP
@@ -145,11 +146,12 @@ async function request(path: string, options: RequestOptions = {}) {
 
     // Tratamento genérico de erro (refresh já tratado pelo interceptor)
     const data = err?.response?.data
-    const text = data
-      ? typeof data === 'string'
-        ? data
-        : JSON.stringify(data)
-      : err.message
+    let text = err.message || 'Falha na requisição'
+    if (data) {
+      if (typeof data === 'string') text = data
+      else if ((data as any).message) text = (data as any).message
+      else text = JSON.stringify(data)
+    }
 
     const e = new Error(text || 'Falha na requisição')
     ;(e as any).status = status || 0
