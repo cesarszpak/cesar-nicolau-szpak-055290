@@ -38,6 +38,7 @@ const SiteNav: React.FC = () => {
           <div className="nav-links">
             <Link to="/" className="nav-link">Home</Link>
             <Link to="/artistas" className="nav-link">Artistas</Link>
+            <Link to="/albuns" className="nav-link">Álbuns</Link>
           </div>
         </div>
 
