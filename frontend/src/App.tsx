@@ -5,6 +5,10 @@ import Login from './pages/Login'
 // Importação lazy da página de artistas para carregamento sob demanda
 const Artists = React.lazy(() => import('./pages/Artists'))
 const ArtistCreate = React.lazy(() => import('./pages/ArtistCreate'))
+const ArtistView = React.lazy(() => import('./pages/ArtistView'))
+const AlbumCreate = React.lazy(() => import('./pages/AlbumCreate'))
+const AlbumEdit = React.lazy(() => import('./pages/AlbumEdit'))
+const Albums = React.lazy(() => import('./pages/Albums'))
 
 import { authFacade } from './facades/auth.facade'
 import SiteNav from './components/SiteNav'
@@ -90,6 +94,45 @@ function App() {
             element={
               <PrivateRoute>
                 <ArtistCreate />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Rota para visualizar artista e seus álbuns */}
+          <Route
+            path="/artistas/:id"
+            element={
+              <PrivateRoute>
+                <ArtistView />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Rotas de álbum (criar / editar) */}
+          <Route
+            path="/artistas/:id/albuns/novo"
+            element={
+              <PrivateRoute>
+                <AlbumCreate />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/artistas/:id/albuns/:albumId/editar"
+            element={
+              <PrivateRoute>
+                <AlbumEdit />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Página de álbuns */}
+          <Route
+            path="/albuns"
+            element={
+              <PrivateRoute>
+                <Albums />
               </PrivateRoute>
             }
           />

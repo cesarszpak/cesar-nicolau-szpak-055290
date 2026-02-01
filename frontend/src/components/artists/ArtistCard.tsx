@@ -3,7 +3,11 @@ import type { Artist } from '../../services/artist.service'
 
 // Componente responsável por exibir as informações de um artista
 // Recebe um objeto do tipo Artist como propriedade
+import { useNavigate } from 'react-router-dom'
+
 const ArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
+  const navigate = useNavigate()
+
   return (
     // Card principal do artista
     <div className="card-artist">
@@ -22,9 +26,19 @@ const ArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
           </div>
         </div>
 
-        {/* Identificador do artista */}
-        <div className="text-sm text-gray-400">
-          #{artist.id}
+        <div className="flex items-center gap-2">
+          {/* Botão para visualizar artista e seus álbuns */}
+          <button
+            onClick={() => navigate(`/artistas/${artist.id}`)}
+            className="btn-secondary"
+          >
+            Ver
+          </button>
+
+          {/* Identificador do artista */}
+          <div className="text-sm text-gray-400">
+            #{artist.id}
+          </div>
         </div>
       </div>
     </div>

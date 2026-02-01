@@ -46,5 +46,7 @@ const searchByName = (
 const create = (dto: { nome: string }) =>
   api.post('/api/artistas', dto) as Promise<Artist>
 
+const get = (id: number) => api.get(`/api/artistas/${id}`) as Promise<Artist>
+
 // Exporta os métodos do serviço de artistas
-export const artistService = { list, searchByName, create }
+export const artistService = { list, searchByName, create, get }
