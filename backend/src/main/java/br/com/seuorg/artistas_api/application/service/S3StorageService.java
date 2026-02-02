@@ -42,29 +42,48 @@ public class S3StorageService {
 
     /** Cliente S3 utilizado para realizar as operações */
     private S3Client s3;
+    private io.minio.MinioClient minioClient;
+
+    /** URL pública base configurada para o storage (usada como fallback ao gerar URLs) */
+    @Value("${s3.public-base-url:}")
+    private String publicBaseUrl;
 
     /**
-     * Inicializa o cliente S3 após a injeção das propriedades.
+     * Inicializa o cliente S3 e o presigner após a injeção das propriedades.
      *
      * Configura as credenciais, região e, caso informado,
      * o endpoint customizado.
      */
     @PostConstruct
     private void init() {
+        var creds = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
         var b = S3Client.builder()
-                .credentialsProvider(
-                        StaticCredentialsProvider.create(
-                                AwsBasicCredentials.create(accessKey, secretKey)
-                        )
-                )
+                .credentialsProvider(creds)
                 .region(Region.of(region));
 
-        // Define um endpoint customizado caso esteja configurado
+        // Se endpoint customizado (ex: MinIO) está configurado, força path-style
+        // para evitar que o SDK use virtual-host style (p.ex. bucket.minio), o que
+        // causa resolução de nomes como 'capas.minio' que não existem na rede.
         if (endpoint != null && !endpoint.isEmpty()) {
-            b = b.endpointOverride(URI.create(endpoint));
+            b = b.endpointOverride(URI.create(endpoint))
+                 .serviceConfiguration(software.amazon.awssdk.services.s3.S3Configuration.builder()
+                         .pathStyleAccessEnabled(true)
+                         .build());
         }
 
         this.s3 = b.build();
+
+        // Try to initialize MinIO client (optional) for presigned url generation
+        try {
+            io.minio.MinioClient m = io.minio.MinioClient.builder()
+                    .endpoint(endpoint)
+                    .credentials(accessKey, secretKey)
+                    .build();
+            this.minioClient = m;
+        } catch (NoClassDefFoundError | Exception e) {
+            // MinIO client not available, presigned generation will fallback
+            this.minioClient = null;
+        }
     }
 
     /**
@@ -83,6 +102,23 @@ public class S3StorageService {
             long size,
             String contentType
     ) {
+        // Garantir que o bucket exista - se não existe, tenta criar (útil para ambientes de desenvolvimento com MinIO)
+        try {
+            s3.headBucket(software.amazon.awssdk.services.s3.model.HeadBucketRequest.builder().bucket(bucket).build());
+        } catch (software.amazon.awssdk.services.s3.model.S3Exception e) {
+            // Se o erro indica que o bucket não existe, tenta criar
+            if (e.statusCode() == 404) {
+                try {
+                    s3.createBucket(software.amazon.awssdk.services.s3.model.CreateBucketRequest.builder().bucket(bucket).build());
+                } catch (Exception ex) {
+                    // fallback: rethrow original exception
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
+        }
+
         PutObjectRequest por = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
@@ -105,5 +141,36 @@ public class S3StorageService {
                 .build();
 
         s3.deleteObject(dor);
+    }
+
+    /**
+     * Gera uma URL pré-assinada para acesso ao objeto no bucket.
+     *
+     * @param bucket     nome do bucket
+     * @param key        chave do objeto
+     * @param expiration duração da assinatura
+     * @return URL pré-assinada
+     */
+    public String generatePresignedUrl(String bucket, String key, java.time.Duration expiration) {
+        // Prefer MinIO client if available (easier to generate presigned URLs for MinIO)
+        if (minioClient != null) {
+            try {
+                int expirySeconds = Math.toIntExact(expiration.getSeconds());
+                // MinIO's API expects expiry in seconds and returns a URL
+                return minioClient.getPresignedObjectUrl(
+                        io.minio.GetPresignedObjectUrlArgs.builder()
+                                .method(io.minio.http.Method.GET)
+                                .bucket(bucket)
+                                .object(key)
+                                .expiry(expirySeconds)
+                                .build()
+                );
+            } catch (Exception e) {
+                // fallback
+            }
+        }
+
+        // Fallback: return public URL
+        return String.format("%s/%s/%s", publicBaseUrl == null ? "" : publicBaseUrl.replaceAll("/+$", ""), bucket, key);
     }
 }

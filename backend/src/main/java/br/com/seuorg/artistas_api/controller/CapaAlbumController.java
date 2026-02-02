@@ -77,6 +77,23 @@ public class CapaAlbumController {
     }
 
     /**
+     * Retorna o conteúdo binário da capa (proxy via API).
+     * Útil para ambientes em que o host do S3/MinIO não é acessível diretamente pelo navegador.
+     */
+    @GetMapping("/{id}/conteudo")
+    public ResponseEntity<byte[]> conteudo(@PathVariable Long id) throws IOException {
+        CapaAlbumResponseDTO dto = capaService.findById(id);
+        if (dto == null) return ResponseEntity.notFound().build();
+
+        byte[] bytes = capaService.downloadContent(dto.getChave());
+        String ct = dto.getContentType() == null ? "application/octet-stream" : dto.getContentType();
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache")
+                .header("Content-Type", ct)
+                .body(bytes);
+    }
+
+    /**
      * Atualiza as capas de um álbum.
      *
      * Permite adicionar novas capas e/ou remover capas existentes
