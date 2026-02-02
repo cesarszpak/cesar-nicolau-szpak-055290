@@ -1,27 +1,34 @@
 services:
+  # Serviço do backend (API Spring Boot)
   api:
     build:
-      context: ./backend
+      context: ./backend  # pasta onde está o Dockerfile do backend
     container_name: artistas-api
     ports:
-      - "8080:8080"
+      - "8080:8080"  # expõe a porta 8080 do container na máquina host
+    environment:
+      # Desabilita a validação do Flyway durante o desenvolvimento
+      # Evita falhas de startup caso o banco local tenha checksums diferentes
+      - SPRING_FLYWAY_VALIDATE_ON_MIGRATE=false
     depends_on:
-      - db
-      - minio
+      - db    # depende do banco de dados
+      - minio # depende do MinIO
     networks:
       - app-network
 
+  # Serviço do frontend (React ou similar)
   frontend:
     build:
-      context: ./frontend
+      context: ./frontend  # pasta onde está o Dockerfile do frontend
     container_name: artistas-frontend
     ports:
-      - "3000:80"
+      - "3000:80"  # expõe a porta 3000 no host e mapeia para 80 no container
     depends_on:
       - api
     networks:
       - app-network
 
+  # Serviço do banco de dados PostgreSQL
   db:
     image: postgres:16
     container_name: artistas-db
@@ -30,31 +37,50 @@ services:
       POSTGRES_USER: artistas
       POSTGRES_PASSWORD: artistas
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data  # persiste os dados do banco
     ports:
-      - "5432:5432"
+      - "5432:5432"  # expõe o PostgreSQL para acesso externo
     networks:
       - app-network
 
+  # Serviço do MinIO (armazenamento S3 compatível)
   minio:
     image: minio/minio:latest
     container_name: artistas-minio
-    command: server /data --console-address ":9001"
+    command: server /data --console-address ":9001" # executa o servidor MinIO e habilita console web
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     volumes:
-      - minio_data:/data
+      - minio_data:/data  # persiste arquivos enviados
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9000" # porta para acesso S3
+      - "9001:9001" # porta para console web do MinIO
     networks:
       - app-network
 
+  # Serviço para rodar testes do backend dentro do Docker
+  api-test:
+    build:
+      context: ./backend
+      target: build  # usa um estágio específico do Dockerfile (build) se existir
+    container_name: artistas-api-test
+    working_dir: /app
+    command: mvn test # executa os testes Maven
+    volumes:
+      - ./backend:/app  # monta código local para que alterações sejam refletidas
+    depends_on:
+      - db
+      - minio
+    networks:
+      - app-network
+
+# Rede interna dos containers
 networks:
   app-network:
     driver: bridge
 
+# Volumes para persistência
 volumes:
   postgres_data:
   minio_data:

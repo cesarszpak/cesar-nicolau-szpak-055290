@@ -37,7 +37,7 @@ class CapaAlbumServiceTest {
 
     /** Mock do serviço de armazenamento S3 */
     @Mock
-    private S3StorageService s3;
+    private br.com.seuorg.artistas_api.storage.S3StorageService s3;
 
     /** Serviço a ser testado, com dependências mockadas */
     @InjectMocks
@@ -49,6 +49,13 @@ class CapaAlbumServiceTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
+        // Ensure Mockito injected mocks into the service. Some environments require an explicit set.
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "s3", s3);
+        // In unit tests, @Value fields are not injected. Set them manually.
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "publicBaseUrl", "http://localhost:9000");
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "bucket", "capas");
+        // Ensure upload limit is reasonable for tests (defaults aren't injected in unit tests)
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "maxFilesPerUpload", 10);
     }
 
     /**
@@ -75,9 +82,16 @@ class CapaAlbumServiceTest {
 
         CapaAlbum saved = new CapaAlbum();
         saved.setId(5L);
+        saved.setAlbum(a); // garante que o álbum está associado na entidade retornada pelo repositório
+        // fornece chave e nome do arquivo para que toDto gere a URL corretamente
+        saved.setChave("capas-album/albums/1/cap.jpg");
+        saved.setNomeArquivo("cap.jpg");
 
         // Simula a persistência da capa
         when(capaRepo.save(any())).thenReturn(saved);
+
+        // Simula presigned URL
+        when(s3.generatePresignedUrl(anyString(), anyString(), any())).thenReturn("http://signed-url/some/path?x=1");
 
         List<?> resp = service.criar(1L, List.of((MultipartFile) file));
 
@@ -86,6 +100,13 @@ class CapaAlbumServiceTest {
         verify(s3, times(1))
                 .upload(anyString(), anyString(), any(), anyLong(), anyString());
         verify(capaRepo, times(1)).save(any());
+
+        // Verifica que o DTO retornado contém a URL pré-assinada, possivelmente substituída pela publicBaseUrl
+        Object dto0 = resp.get(0);
+        assertTrue(dto0 instanceof br.com.seuorg.artistas_api.application.dto.CapaAlbumResponseDTO);
+        var dto = (br.com.seuorg.artistas_api.application.dto.CapaAlbumResponseDTO) dto0;
+        // If publicBaseUrl is set in tests, the service will replace the base of the presigned URL by it
+        assertEquals("http://localhost:9000/some/path?x=1", dto.getUrl());
     }
 
     /**
@@ -101,5 +122,19 @@ class CapaAlbumServiceTest {
         service.excluir(99L);
 
         verify(capaRepo, never()).delete(any());
+    }
+
+    @Test
+    void excluir_deveRemoverDoS3EBanco() {
+        CapaAlbum c = new CapaAlbum();
+        c.setId(7L);
+        c.setChave("capas-album/albums/1/test.jpg");
+
+        when(capaRepo.findById(7L)).thenReturn(Optional.of(c));
+
+        service.excluir(7L);
+
+        verify(s3, times(1)).delete(eq("capas"), eq("capas-album/albums/1/test.jpg"));
+        verify(capaRepo, times(1)).delete(eq(c));
     }
 }

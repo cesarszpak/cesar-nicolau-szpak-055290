@@ -83,9 +83,14 @@ class UsuarioServiceTest {
         when(passwordEncoder.matches(any(), any()))
                 .thenReturn(false);
 
+        // Cria um DTO de login com email e senha inválida
+        var dto = new br.com.seuorg.artistas_api.application.dto.LoginRequestDTO();
+        dto.setEmail("a@a.com");
+        dto.setSenha("wrong");
+
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.autenticar(null)
+                () -> service.autenticar(dto)
         );
     }
 }

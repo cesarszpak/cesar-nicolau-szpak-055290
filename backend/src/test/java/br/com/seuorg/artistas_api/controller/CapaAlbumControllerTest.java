@@ -20,20 +20,31 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Teste de integração para o endpoint de upload de capas de álbuns.
+ * Verifica se é possível enviar arquivos multipart e receber o DTO da capa criada.
+ */
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false) // desabilita filtros de segurança para facilitar o teste
+@AutoConfigureMockMvc(addFilters = false) // Desabilita filtros de segurança para facilitar o teste
 class CapaAlbumControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvc mockMvc; // Simula requisições HTTP para os endpoints
 
     @MockBean
-    private CapaAlbumService capaService;
+    private CapaAlbumService capaService; // Mock do serviço para não depender de S3 ou banco real
 
     @Test
     void upload_shouldReturnListOfCreatedCovers() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("arquivos", "cap.jpg", "image/jpeg", "data".getBytes());
+        // Cria um arquivo multipart simulado
+        MockMultipartFile file = new MockMultipartFile(
+                "arquivos", // nome do campo esperado pelo endpoint
+                "cap.jpg", // nome do arquivo
+                "image/jpeg", // tipo de conteúdo
+                "data".getBytes() // conteúdo do arquivo
+        );
 
+        // Cria um DTO simulado que será retornado pelo serviço
         CapaAlbumResponseDTO dto = new CapaAlbumResponseDTO();
         dto.setId(5L);
         dto.setAlbumId(1L);
@@ -42,15 +53,18 @@ class CapaAlbumControllerTest {
         dto.setUrl("http://localhost:9000/capas/capas-album/albums/1/cap.jpg");
         dto.setCreatedAt(LocalDateTime.now());
 
-        when(capaService.criar(anyLong(), org.mockito.ArgumentMatchers.anyList())).thenReturn(List.of(dto));
+        // Configura o comportamento do mock para retornar o DTO quando o serviço for chamado
+        when(capaService.criar(anyLong(), org.mockito.ArgumentMatchers.anyList()))
+                .thenReturn(List.of(dto));
 
+        // Executa a requisição POST multipart simulada e verifica a resposta
         mockMvc.perform(multipart("/api/capas")
-                .file(file)
-                .param("albumId", "1")
-                .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(5))
-                .andExpect(jsonPath("$[0].albumId").value(1))
-                .andExpect(jsonPath("$[0].nomeArquivo").value("cap.jpg"));
+                .file(file) // envia o arquivo
+                .param("albumId", "1") // envia o parâmetro albumId
+                .contentType(MediaType.MULTIPART_FORM_DATA)) // define o content type
+                .andExpect(status().isOk()) // espera status 200 OK
+                .andExpect(jsonPath("$[0].id").value(5)) // valida o id do DTO retornado
+                .andExpect(jsonPath("$[0].albumId").value(1)) // valida o albumId
+                .andExpect(jsonPath("$[0].nomeArquivo").value("cap.jpg")); // valida o nome do arquivo
     }
 }

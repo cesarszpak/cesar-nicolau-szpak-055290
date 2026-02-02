@@ -6,11 +6,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+/**
+ * DTO responsável por representar os dados necessários
+ * para a criação de um artista.
+ */
+@Data // Gera getters, setters, equals, hashCode e toString
+@NoArgsConstructor // Gera construtor sem argumentos
+@AllArgsConstructor // Gera construtor com todos os atributos
 public class ArtistaCreateDTO {
 
+    /**
+     * Nome do artista.
+     * Campo obrigatório e com tamanho entre 2 e 255 caracteres.
+     */
     @NotBlank(message = "Nome é obrigatório")
     @Size(min = 2, max = 255, message = "Nome deve ter entre 2 e 255 caracteres")
     private String nome;

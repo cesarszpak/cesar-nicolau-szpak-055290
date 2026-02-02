@@ -1,0 +1,17 @@
+spring:
+  flyway:
+    # Desabilita a validação das migrações durante o migrate
+    # Útil quando o histórico de migrações pode ter divergências
+    validate-on-migrate: false
+
+# Utilize o banco de dados H2 em memória para testes unitários mais rápidos.
+# Descomente as configurações abaixo para habilitar o H2:
+#
+# datasource:
+#   url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+#   driver-class-name: org.h2.Driver
+#   username: sa
+#   password:
+
+# Garanta que este arquivo seja aplicado durante os testes
+# fornecendo também um application.yaml padrão em src/test/resources

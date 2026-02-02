@@ -1,0 +1,43 @@
+spring:
+  flyway:
+    # Desabilita a validação das migrações ao executar o migrate
+    validate-on-migrate: false
+
+    # Desabilita completamente o Flyway neste ambiente (ex: testes)
+    enabled: false
+
+  datasource:
+    # Configuração do banco H2 em memória para testes
+    # O banco é recriado a cada execução
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      # Cria o schema ao iniciar a aplicação e remove ao finalizar
+      # Ideal para testes automatizados
+      ddl-auto: create-drop
+
+s3:
+  # Endpoint do serviço S3 (ex: MinIO local para testes)
+  endpoint: http://localhost:9000
+
+  # Credenciais de acesso ao S3
+  access-key: minioadmin
+  secret-key: minioadmin
+
+  # Nome do bucket utilizado para armazenar as capas dos álbuns
+  bucket: capas
+
+  # Região utilizada pelo cliente S3
+  region: us-east-1
+
+  # URL base pública para acesso aos arquivos armazenados
+  public-base-url: http://localhost:9000
+
+# Configuração do JWT utilizada durante os testes
+# Necessária para o JwtUtil validar e gerar tokens
+jwt:
+  secret: test-jwt-secret-that-is-long-enough-to-be-valid
