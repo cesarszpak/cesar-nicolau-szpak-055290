@@ -125,7 +125,7 @@ const Artists: React.FC = () => {
   }, [success, location, navigate])
 
   return (
-    <div className="p-6">
+    <div className="site-container p-6">
       {/* Cabeçalho da página */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Artistas</h1>
