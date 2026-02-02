@@ -9,6 +9,7 @@ const ArtistView = React.lazy(() => import('./pages/ArtistView'))
 const AlbumCreate = React.lazy(() => import('./pages/AlbumCreate'))
 const AlbumEdit = React.lazy(() => import('./pages/AlbumEdit'))
 const Albums = React.lazy(() => import('./pages/Albums'))
+const AlbumView = React.lazy(() => import('./pages/AlbumView'))
 
 import { authFacade } from './facades/auth.facade'
 import SiteNav from './components/SiteNav'
@@ -133,6 +134,16 @@ function App() {
             element={
               <PrivateRoute>
                 <Albums />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Página de visualização de álbum */}
+          <Route
+            path="/albuns/:id"
+            element={
+              <PrivateRoute>
+                <AlbumView />
               </PrivateRoute>
             }
           />

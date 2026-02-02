@@ -31,13 +31,13 @@ const SiteNav: React.FC = () => {
         {/* Logo e links principais */}
         <div className="flex items-center">
           <Link to="/" className="inline-flex items-center">
-            Sistema
+            <div className="site-brand"/>
+            <div className="site-brand-text">Sistema</div>
           </Link>
 
           {/* Links exibidos apenas em telas maiores */}
           <div className="nav-links">
             <Link to="/" className="nav-link">Home</Link>
-            <Link to="/artistas" className="nav-link">Artistas</Link>
             <Link to="/albuns" className="nav-link">Álbuns</Link>
           </div>
         </div>

@@ -1,29 +1,67 @@
+// Importa o React
 import React from 'react'
+
+// Importa hook para acessar parâmetros da rota
 import { useParams } from 'react-router-dom'
+
+// Importa o formulário reutilizável de álbum
 import AlbumForm from '../components/albums/AlbumForm'
+
+// Importa o serviço responsável pelas operações com álbuns
 import { albumService } from '../services/album.service'
 
+// Componente responsável pela edição de um álbum
 const AlbumEdit: React.FC = () => {
-  const { albumId } = useParams<{ albumId: string }>()
-  const [initial, setInitial] = React.useState<{ nome: string; artistaId?: number } | null>(null)
 
+  // Recupera o parâmetro albumId da rota
+  const { albumId } = useParams<{ albumId: string }>()
+
+  // Estado para armazenar os dados iniciais do álbum
+  const [initial, setInitial] = React.useState<{
+    nome: string
+    artistaId?: number
+  } | null>(null)
+
+  // Efeito executado ao carregar o componente ou quando o albumId muda
   React.useEffect(() => {
     if (!albumId) return
-    albumService.get(Number(albumId)).then(a => {
-      setInitial({ nome: a.nome, artistaId: a.artistaId })
-    }).catch(() => {})
+
+    // Busca os dados do álbum para edição
+    albumService.get(Number(albumId))
+      .then(a => {
+        // Define os dados iniciais do formulário
+        setInitial({
+          nome: a.nome,
+          artistaId: a.artistaId
+        })
+      })
+      .catch(() => {
+        // Erro ignorado propositalmente (pode ser tratado futuramente)
+      })
   }, [albumId])
 
-  // Reuse AlbumForm but for update we need to call update when submitting
-  // For simplicity, if initial present, render custom form
-  if (!initial) return <div className="p-6">Carregando...</div>
+  // Enquanto os dados iniciais não forem carregados, exibe mensagem de loading
+  if (!initial) {
+    return (
+      <div className="site-container p-6">
+        Carregando...
+      </div>
+    )
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Editar Álbum</h1>
+    <div className="site-container p-6">
+
+      {/* Título da página */}
+      <h1 className="text-2xl font-bold mb-4">
+        Editar Álbum
+      </h1>
+
+      {/* Reutiliza o formulário de álbum em modo de edição */}
       <AlbumForm initial={initial} />
     </div>
   )
 }
 
+// Exporta o componente
 export default AlbumEdit
