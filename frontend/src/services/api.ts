@@ -127,6 +127,11 @@ async function request(path: string, options: RequestOptions = {}) {
     ...(optHeaders as Record<string, string> | undefined)
   }
 
+  // Se o body for FormData, permite que o browser defina o Content-Type (boundary)
+  if ((cfg as any).data instanceof FormData) {
+    delete headers['Content-Type']
+  }
+
   // Adiciona o token JWT no header Authorization, se necessário
   if (authRequired) {
     const token = localStorage.getItem('token')
@@ -143,9 +148,25 @@ async function request(path: string, options: RequestOptions = {}) {
     return res.data
   } catch (err: any) {
     const status = err?.response?.status
-
-    // Tratamento genérico de erro (refresh já tratado pelo interceptor)
     const data = err?.response?.data
+
+    // Erro sem resposta: problema de rede/CORS ou o servidor encerrou a conexão
+    if (!err?.response) {
+      const msg = (err.message || '').toLowerCase().includes('network')
+        ? 'Erro de rede: verifique se o backend está acessível ou se há problemas de CORS'
+        : (err.message || 'Falha na requisição')
+      const e = new Error(msg)
+      ;(e as any).status = 0
+      throw e
+    }
+
+    // Mensagens amigáveis para status específicos
+    if (status === 403) {
+      const e = new Error('Ação não autorizada. Faça login.')
+      ;(e as any).status = status
+      throw e
+    }
+
     let text = err.message || 'Falha na requisição'
     if (data) {
       if (typeof data === 'string') text = data

@@ -104,6 +104,17 @@ const AlbumView: React.FC = () => {
               reloadTrigger={coversReloadTrigger}
             />
           </div>
+
+          {/* Formulário para upload de novas capas */}
+          <div className="mt-4">
+            <AlbumUploadForm
+              albumId={album.id}
+              onUploaded={() => {
+                // Incrementa o trigger para forçar o reload das capas
+                setCoversReloadTrigger(t => t + 1)
+              }}
+            />
+          </div>
         </div>
       )}
 
