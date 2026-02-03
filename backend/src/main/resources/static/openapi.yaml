@@ -344,8 +344,6 @@ components:
           type: string
         artistaId:
           type: integer
-        tipoId:
-          type: integer
       required: [nome, artistaId]
 security:
   - bearerAuth: []

@@ -29,15 +29,23 @@ public class AlbumService {
     /** Repositório de persistência de artistas */
     private final ArtistaRepository artistaRepository;
 
+    /** Notificador de novos álbuns via WebSocket */
+    private final br.com.seuorg.artistas_api.websocket.AlbumNotifier albumNotifier;
+
+    /** Rate limiter de notificações por usuário */
+    private final br.com.seuorg.artistas_api.notification.NotificationRateLimiter notificationLimiter;
+
     /**
      * Construtor com injeção de dependências.
      *
      * @param repository repositório de álbuns
      * @param artistaRepository repositório de artistas
      */
-    public AlbumService(AlbumRepository repository, ArtistaRepository artistaRepository) {
+    public AlbumService(AlbumRepository repository, ArtistaRepository artistaRepository, br.com.seuorg.artistas_api.websocket.AlbumNotifier albumNotifier, br.com.seuorg.artistas_api.notification.NotificationRateLimiter notificationLimiter) {
         this.repository = repository;
         this.artistaRepository = artistaRepository;
+        this.albumNotifier = albumNotifier;
+        this.notificationLimiter = notificationLimiter;
     }
 
     /**
@@ -59,6 +67,33 @@ public class AlbumService {
 
         // Salva o álbum no banco de dados
         Album saved = repository.save(album);
+
+        // Notifica clientes conectados via WebSocket sobre novo álbum
+        try {
+            // Identifica usuário autenticado, se houver
+            String user = null;
+            var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                user = auth.getName();
+            }
+
+            boolean allowed = true;
+            if (user != null) {
+                allowed = notificationLimiter.tryAcquire("user:" + user);
+            } else {
+                // fallback global limiter per anonymous (ip not available here)
+                allowed = notificationLimiter.tryAcquire("anonymous");
+            }
+
+            if (allowed) {
+                albumNotifier.notifyNewAlbum(convertToResponseDTO(saved));
+            } else {
+                // Quando excede, não enviamos a notificação; registro para auditoria
+                org.slf4j.LoggerFactory.getLogger(AlbumService.class).warn("Notification rate limit exceeded for user {}", user);
+            }
+        } catch (Exception e) {
+            // Não impedimos a criação do álbum por causa de falha na notificação
+        }
 
         // Converte a entidade para DTO de resposta
         return convertToResponseDTO(saved);
@@ -103,15 +138,6 @@ public class AlbumService {
 
         return repository.findByArtistaId(artistaId, pageable)
                 .map(this::convertToResponseDTO);
-    }
-
-    /**
-     * Método removido do sistema.
-     *
-     * @throws UnsupportedOperationException sempre que for chamado
-     */
-    public Page<AlbumResponseDTO> listarPorTipo(Long tipoId, Pageable pageable) {
-        throw new UnsupportedOperationException("Listar por tipo foi removido do sistema");
     }
 
     /**

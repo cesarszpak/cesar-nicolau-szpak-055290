@@ -161,6 +161,8 @@ public class SecurityConfig {
                     org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
             )
 
+            // (Rate limiting) Nota: o rate limit global foi removido — o limite de notificações é aplicado internamente no serviço de notificações.
+
             // Desabilita autenticação HTTP Basic
             .httpBasic().disable()
 
@@ -168,5 +170,11 @@ public class SecurityConfig {
             .formLogin().disable();
 
         return http.build();
+    }
+
+    @Bean
+    public br.com.seuorg.artistas_api.notification.NotificationRateLimiter notificationRateLimiter() {
+        // 10 notificações por janela de 60 segundos
+        return new br.com.seuorg.artistas_api.notification.NotificationRateLimiter(10, 60);
     }
 }
