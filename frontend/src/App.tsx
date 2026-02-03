@@ -13,6 +13,7 @@ const AlbumView = React.lazy(() => import('./pages/AlbumView'))
 
 import { authFacade } from './facades/auth.facade'
 import SiteNav from './components/SiteNav'
+import SafetyNetBanner from './components/SafetyNetBanner'
 import './index.css'
 
 // Componente responsável por proteger rotas privadas
@@ -63,8 +64,27 @@ function AuthNav() {
 
 // Componente principal da aplicação
 function App() {
+  React.useEffect(() => {
+    // Inicializa monitor proativo ao montar a aplicação (dynamic import evita problemas de build)
+    let stop: (() => void) | undefined
+    import('./services/healthMonitor').then(m => {
+      if (m?.startProactiveMonitoring) stop = m.startProactiveMonitoring()
+    }).catch(() => {
+      // noop
+    })
+
+    return () => {
+      if (stop) stop()
+    }
+  }, [])
+
   return (
     <BrowserRouter>
+
+      {/* Banner global de rede de segurança (aparece quando backend está DOWN) */}
+      <React.Suspense fallback={null}>
+        <SafetyNetBanner />
+      </React.Suspense>
 
       {/* Menu exibido apenas para usuários autenticados */}
       <AuthNav />

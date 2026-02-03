@@ -2,25 +2,30 @@ import axios from 'axios'
 import type { AxiosRequestConfig } from 'axios'
 
 /**
- * URL base da API obtida a partir das variáveis de ambiente do Vite
- * Se não informado, assume o host atual na porta 8080 (útil em dev/docker)
+ * URL base da API obtida a partir das variáveis de ambiente do Vite.
+ * Caso não esteja definida, utiliza o host atual na porta 8080
+ * (útil em ambiente de desenvolvimento ou Docker).
  */
-const API_URL = import.meta.env.VITE_API_URL ?? (typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:8080` : '')
+const API_URL =
+  import.meta.env.VITE_API_URL ??
+  (typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:8080`
+    : '')
 
 /**
- * Opções customizadas para a requisição HTTP
- * authRequired?: define se o token JWT deve ser enviado (padrão: true)
+ * Opções customizadas para a requisição HTTP.
+ * authRequired?: define se o token JWT deve ser enviado (padrão: true).
  */
 type RequestOptions = AxiosRequestConfig & { authRequired?: boolean }
 
 /**
- * Instância do Axios configurada com a URL base da API
+ * Instância do Axios configurada com a URL base da API.
  */
 const instance = axios.create({ baseURL: API_URL })
 
 /**
  * Configuração interna do Axios que permite
- * o uso de flags adicionais (_retry, authRequired)
+ * o uso de flags adicionais (_retry, authRequired).
  */
 interface InternalAxiosRequestConfig extends RequestOptions {
   _retry?: boolean
@@ -28,23 +33,55 @@ interface InternalAxiosRequestConfig extends RequestOptions {
 
 /**
  * Promise compartilhada para evitar múltiplas chamadas
- * simultâneas de refresh de token
+ * simultâneas de refresh de token.
  */
 let refreshPromise: Promise<string | null> | null = null
 
 /**
- * Interceptor de resposta
- * Trata respostas 401 (não autorizado), executa o refresh do token
- * e refaz a requisição original automaticamente
+ * Interceptor global de respostas.
+ *
+ * - Em respostas bem-sucedidas, marca o backend como UP.
+ * - Em erros 401, executa o refresh do token e refaz a requisição original.
+ * - Em erros de rede ou 503, marca o backend como DOWN.
  */
 instance.interceptors.response.use(
-  response => response,
-  async (error) => {
+  response => {
+    // Em respostas de sucesso, marca o backend como UP
+    // (import dinâmico evita incluir código desnecessário no bundle)
+    import('./backendMonitor')
+      .then(bm => {
+        if (bm && bm.setUp) bm.setUp()
+      })
+      .catch(() => {})
+    return response
+  },
+  async error => {
     const { response, config } = error
     const originalConfig = config as InternalAxiosRequestConfig | undefined
 
-    // Se não houver resposta, não for 401 ou a rota não exigir autenticação
-    if (!response || response.status !== 401 || (originalConfig && originalConfig.authRequired === false)) {
+    // Monitoramento proativo:
+    // se não houver resposta ou o status for 503, marca o backend como DOWN
+    if (!response || response.status === 503) {
+      import('./backendMonitor')
+        .then(bm => {
+          if (bm && bm.setDown) {
+            bm.setDown(
+              response
+                ? response.statusText || String(response.status)
+                : error.message || 'network'
+            )
+          }
+        })
+        .catch(() => {})
+    }
+
+    // Se não houver resposta, não for 401,
+    // ou a rota não exigir autenticação, apenas propaga o erro
+    if (
+      !response ||
+      response.status !== 401 ||
+      (originalConfig && originalConfig.authRequired === false)
+    ) {
       return Promise.reject(error)
     }
 
@@ -66,18 +103,21 @@ instance.interceptors.response.use(
 
       // Inicia o processo de refresh do token
       // Usa authRequired: false para evitar interceptação em loop
-      refreshPromise = instance.post(
-        '/refresh',
-        refreshToken,
-        ({ headers: { 'Content-Type': 'text/plain' }, authRequired: false } as any)
-      )
+      refreshPromise = instance
+        .post(
+          '/refresh',
+          refreshToken,
+          ({ headers: { 'Content-Type': 'text/plain' }, authRequired: false } as any)
+        )
         .then(r => {
           const data = r.data
 
           // Atualiza os tokens no localStorage
           if (data && data.token) {
             localStorage.setItem('token', data.token)
-            if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken)
+            if (data.refreshToken) {
+              localStorage.setItem('refreshToken', data.refreshToken)
+            }
             return data.token
           }
 
@@ -114,8 +154,8 @@ instance.interceptors.response.use(
 )
 
 /**
- * Função central de requisição HTTP
- * Centraliza autenticação, refresh de token e tratamento de erros
+ * Função central de requisição HTTP.
+ * Centraliza autenticação, refresh de token e tratamento de erros.
  */
 async function request(path: string, options: RequestOptions = {}) {
   // Extrai a flag de autenticação e headers customizados
@@ -127,7 +167,7 @@ async function request(path: string, options: RequestOptions = {}) {
     ...(optHeaders as Record<string, string> | undefined)
   }
 
-  // Se o body for FormData, permite que o browser defina o Content-Type (boundary)
+  // Se o body for FormData, permite que o navegador defina o Content-Type (boundary)
   if ((cfg as any).data instanceof FormData) {
     delete headers['Content-Type']
   }
@@ -154,19 +194,20 @@ async function request(path: string, options: RequestOptions = {}) {
     if (!err?.response) {
       const msg = (err.message || '').toLowerCase().includes('network')
         ? 'Erro de rede: verifique se o backend está acessível ou se há problemas de CORS'
-        : (err.message || 'Falha na requisição')
+        : err.message || 'Falha na requisição'
       const e = new Error(msg)
       ;(e as any).status = 0
       throw e
     }
 
-    // Mensagens amigáveis para status específicos
+    // Mensagem amigável para erro 403 (proibido)
     if (status === 403) {
       const e = new Error('Ação não autorizada. Faça login.')
       ;(e as any).status = status
       throw e
     }
 
+    // Monta a mensagem de erro a partir da resposta da API
     let text = err.message || 'Falha na requisição'
     if (data) {
       if (typeof data === 'string') text = data
@@ -181,8 +222,8 @@ async function request(path: string, options: RequestOptions = {}) {
 }
 
 /**
- * API pública utilizada pelo front-end
- * Centraliza os métodos GET, POST, PUT e DELETE
+ * API pública utilizada pelo front-end.
+ * Centraliza os métodos GET, POST, PUT e DELETE.
  */
 export default {
   get: (path: string) =>
@@ -193,9 +234,10 @@ export default {
     request(path, {
       method: 'POST',
       data: typeof body === 'string' ? body : body,
-      headers: typeof body === 'string'
-        ? { 'Content-Type': 'text/plain' }
-        : undefined,
+      headers:
+        typeof body === 'string'
+          ? { 'Content-Type': 'text/plain' }
+          : undefined,
       ...opts
     }),
 
