@@ -1,0 +1,351 @@
+openapi: 3.0.3
+info:
+  title: Artistas API
+  version: 0.0.1
+  description: "Especificação OpenAPI estática (gerada manualmente)."
+servers:
+  - url: /
+paths:
+  /login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: JWT e refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /refresh:
+    post:
+      summary: Refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Novo token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /api/usuarios:
+    post:
+      summary: Criar usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioCreate'
+      responses:
+        '201':
+          description: Usuário criado
+    get:
+      summary: Listar usuários
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista paginada de usuários
+  /api/usuarios/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obter usuário por ID
+      responses:
+        '200':
+          description: Usuário
+    put:
+      summary: Atualizar usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioCreate'
+      responses:
+        '200':
+          description: Usuário atualizado
+    delete:
+      summary: Deletar usuário
+      responses:
+        '204':
+          description: Deletado
+  /api/artistas:
+    get:
+      summary: Listar artistas
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Página de artistas
+    post:
+      summary: Criar artista
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtistaCreate'
+      responses:
+        '201':
+          description: Artista criado
+  /api/artistas/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obter artista por ID
+      responses:
+        '200':
+          description: Artista
+    put:
+      summary: Atualizar artista
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtistaCreate'
+      responses:
+        '200':
+          description: Artista atualizado
+    delete:
+      summary: Deletar artista
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Deletado
+  /api/artistas/buscar/nome:
+    get:
+      summary: Buscar artista por nome
+      parameters:
+        - in: query
+          name: nome
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: ordem
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Página de artistas
+  /api/albuns:
+    get:
+      summary: Listar álbuns
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Página de álbuns
+    post:
+      summary: Criar álbum
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumCreate'
+      responses:
+        '201':
+          description: Álbum criado
+  /api/albuns/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obter álbum por ID
+      responses:
+        '200':
+          description: Álbum
+    put:
+      summary: Atualizar álbum
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumCreate'
+      responses:
+        '200':
+          description: Álbum atualizado
+    delete:
+      summary: Deletar álbum
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Deletado
+  /api/albuns/artista/{artistaId}:
+    parameters:
+      - in: path
+        name: artistaId
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Listar álbuns por artista
+      responses:
+        '200':
+          description: Página de álbuns
+  /api/albuns/buscar/nome:
+    get:
+      summary: Buscar álbuns por nome
+      parameters:
+        - in: query
+          name: nome
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Página de álbuns
+  /api/capas:
+    post:
+      summary: Adicionar capas (multipart)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                albumId:
+                  type: integer
+                arquivos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Capas criadas
+  /api/capas/album/{albumId}:
+    parameters:
+      - in: path
+        name: albumId
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Listar capas por álbum
+      responses:
+        '200':
+          description: Lista de capas
+  /api/capas/{id}/conteudo:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Conteúdo binário da capa (proxy)
+      responses:
+        '200':
+          description: Conteúdo binário
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        senha:
+          type: string
+      required: [email, senha]
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+    UsuarioCreate:
+      type: object
+      properties:
+        nome:
+          type: string
+        email:
+          type: string
+        senha:
+          type: string
+      required: [nome, email, senha]
+    ArtistaCreate:
+      type: object
+      properties:
+        nome:
+          type: string
+      required: [nome]
+    AlbumCreate:
+      type: object
+      properties:
+        nome:
+          type: string
+        artistaId:
+          type: integer
+        tipoId:
+          type: integer
+      required: [nome, artistaId]
+security:
+  - bearerAuth: []

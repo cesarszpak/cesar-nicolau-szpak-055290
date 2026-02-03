@@ -127,6 +127,17 @@ public class SecurityConfig {
                             "/api/capas/*/conteudo"
                     ).permitAll()
 
+                    // Endpoints públicos do Swagger/OpenAPI (UI e docs)
+                    .requestMatchers(
+                            "/v3/api-docs/**",
+                            "/v3/api-docs.yaml",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/openapi.yaml",
+                            "/v1/api-docs/**",
+                            "/v1/api-docs"
+                    ).permitAll()
+
                     // Endpoints públicos (login, refresh e criação/listagem básica)
                     .requestMatchers(
                             "/login",

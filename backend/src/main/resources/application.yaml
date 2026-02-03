@@ -40,3 +40,10 @@ s3:
   bucket: capas
   region: us-east-1
   public-base-url: http://localhost:9000
+
+# Forçar Swagger UI a carregar um arquivo OpenAPI estático gerado durante o build
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    url: /openapi.yaml
