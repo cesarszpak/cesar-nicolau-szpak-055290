@@ -23,7 +23,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    probes:
+      enabled: true
 
 jwt:
   secret: replace_with_a_secure_random_key_of_at_least_32_bytes_long
@@ -40,6 +47,7 @@ s3:
   bucket: capas
   region: us-east-1
   public-base-url: http://localhost:9000
+  readiness-check-enabled: false
 
 # Forçar Swagger UI a carregar um arquivo OpenAPI estático gerado durante o build
 springdoc:

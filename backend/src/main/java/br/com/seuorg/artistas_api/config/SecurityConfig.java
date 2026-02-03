@@ -135,7 +135,12 @@ public class SecurityConfig {
                             "/swagger-ui.html",
                             "/openapi.yaml",
                             "/v1/api-docs/**",
-                            "/v1/api-docs"
+                            "/v1/api-docs",
+                            // Actuator health endpoints (liveness/readiness)
+                            "/actuator/health/**",
+                            "/actuator/health",
+                            "/actuator/probes/**",
+                            "/actuator/probes"
                     ).permitAll()
 
                     // Endpoints públicos (login, refresh e criação/listagem básica)
