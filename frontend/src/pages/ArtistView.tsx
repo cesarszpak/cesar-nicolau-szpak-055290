@@ -74,18 +74,26 @@ const ArtistView: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Visualizar Artista</h1>
-          <div className="text-sm text-gray-600">
+          {/* <div className="text-sm text-gray-600">
             Dados do artista e lista de álbuns
-          </div>
+          </div> */}
         </div>
 
         {/* Botão para cadastrar um novo álbum */}
-        <div>
+        <div className="flex gap-1">
           <button
             onClick={() => navigate(`/artistas/${artistId}/albuns/novo`)}
             className="btn-primary"
           >
             Cadastrar Álbum
+          </button>
+
+          {/* Botão para voltar à lista de artistas */}
+          <button
+            onClick={() => navigate('/artistas')}
+            className="btn-secondary"
+          >
+            Voltar
           </button>
         </div>
       </div>
@@ -104,7 +112,7 @@ const ArtistView: React.FC = () => {
       {artist && (
         <div className="mb-6">
           <div className="text-xl font-semibold">{artist.nome}</div>
-          <div className="text-sm text-gray-600">#{artist.id}</div>
+          {/* <div className="text-sm text-gray-600">#{artist.id}</div> */}
         </div>
       )}
 
@@ -113,15 +121,7 @@ const ArtistView: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold mb-4">Álbuns</h2>
 
-          {/* Botão para voltar à lista de artistas */}
-          <div>
-            <button
-              onClick={() => navigate('/artistas')}
-              className="btn-secondary"
-            >
-              Voltar
-            </button>
-          </div>
+
         </div>
 
         {/* Mensagem quando não há álbuns */}

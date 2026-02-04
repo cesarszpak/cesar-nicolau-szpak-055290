@@ -31,7 +31,7 @@ const ArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
           {/* Botão para visualizar artista e seus álbuns */}
           <button
             onClick={() => navigate(`/artistas/${artist.id}`)}
-            className="btn-secondary"
+            className="btn-info"
           >
             Ver
           </button>

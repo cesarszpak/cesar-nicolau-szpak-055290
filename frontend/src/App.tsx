@@ -16,6 +16,8 @@ import SiteNav from './components/SiteNav'
 import SafetyNetBanner from './components/SafetyNetBanner'
 import './index.css'
 
+const AlbumNotificationToast = React.lazy(() => import('./components/AlbumNotificationToast'))
+
 // Componente responsável por proteger rotas privadas
 // Redireciona para o login caso o usuário não esteja autenticado
 function PrivateRoute({ children }: { children: ReactElement }) {
@@ -81,13 +83,14 @@ function App() {
   return (
     <BrowserRouter>
 
-      {/* Banner global de rede de segurança (aparece quando backend está DOWN) */}
-      <React.Suspense fallback={null}>
-        <SafetyNetBanner />
-      </React.Suspense>
-
       {/* Menu exibido apenas para usuários autenticados */}
       <AuthNav />
+
+      {/* Banner global de rede de segurança (aparece discretamente abaixo do menu) */}
+      <React.Suspense fallback={null}>
+        <SafetyNetBanner />
+        <AlbumNotificationToast />
+      </React.Suspense>
 
       {/* Observador global de autenticação */}
       <AuthWatcher />

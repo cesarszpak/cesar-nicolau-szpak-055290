@@ -59,7 +59,7 @@ const AlbumView: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Detalhes do Álbum</h1>
-          <div className="text-sm text-gray-600">Informações e capas</div>
+          {/* <div className="text-sm text-gray-600">Informações e capas</div> */}
         </div>
 
         {/* Botão para voltar à página anterior */}

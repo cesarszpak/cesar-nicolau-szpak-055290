@@ -193,7 +193,8 @@ async function request(path: string, options: RequestOptions = {}) {
     // Erro sem resposta: problema de rede/CORS ou o servidor encerrou a conexão
     if (!err?.response) {
       const msg = (err.message || '').toLowerCase().includes('network')
-        ? 'Erro de rede: verifique se o backend está acessível ou se há problemas de CORS'
+        // ? 'Erro de rede: verifique se o backend está acessível ou se há problemas de CORS'
+        ? 'Erro de rede: aguardando resposta do backend'
         : err.message || 'Falha na requisição'
       const e = new Error(msg)
       ;(e as any).status = 0
