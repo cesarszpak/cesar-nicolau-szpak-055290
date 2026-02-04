@@ -4,7 +4,7 @@ import ArtistCard from './ArtistCard'
 
 // Componente responsável por listar os artistas
 // Recebe como propriedade um array de artistas
-const ArtistsList: React.FC<{ artists: Artist[] }> = ({ artists }) => {
+const ArtistsList: React.FC<{ artists: Artist[]; onDelete?: (id: number) => void }> = ({ artists, onDelete }) => {
 
   // Caso o array de artistas esteja vazio, exibe uma mensagem informativa
   if (!artists.length) {
@@ -21,7 +21,7 @@ const ArtistsList: React.FC<{ artists: Artist[] }> = ({ artists }) => {
       {/* Percorre a lista de artistas e renderiza um card para cada item */}
       {artists.map(a => (
         // A propriedade "key" é obrigatória para listas no React
-        <ArtistCard key={a.id} artist={a} />
+        <ArtistCard key={a.id} artist={a} onDelete={onDelete} />
       ))}
     </div>
   )

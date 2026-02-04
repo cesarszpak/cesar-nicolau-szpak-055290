@@ -6,7 +6,7 @@ import type { Artist } from '../../services/artist.service'
 import Card from '../common/Card'
 import { useNavigate } from 'react-router-dom'
 
-const ArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
+const ArtistCard: React.FC<{ artist: Artist; onDelete?: (id: number) => void }> = ({ artist, onDelete }) => {
   const navigate = useNavigate()
 
   return (
@@ -36,9 +36,30 @@ const ArtistCard: React.FC<{ artist: Artist }> = ({ artist }) => {
             Ver
           </button>
 
-          {/* Identificador do artista */}
-          <div className="text-sm text-gray-400">           
-          </div>
+          {/* Botão para editar artista (classe btn-warning) */}
+          <button
+            onClick={() => navigate(`/artistas/${artist.id}/editar`)}
+            className="btn-warning"
+            title="Editar artista"
+          >
+            Editar
+          </button>
+
+          {/* Botão para excluir artista (classe btn-danger) */}
+          <button
+            onClick={() => {
+              // Confirmação antes de excluir
+              if (!window.confirm('Tem certeza que deseja excluir o artista?')) return
+
+              // Se foi passado o callback de onDelete, chama-o
+              if (onDelete) onDelete(artist.id)
+            }}
+            className="btn-danger"
+            title="Excluir artista"
+          >
+            Excluir
+          </button>
+
         </div>
       </div>
     </Card>

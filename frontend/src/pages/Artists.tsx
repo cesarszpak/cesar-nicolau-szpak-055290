@@ -37,6 +37,11 @@ const Artists: React.FC = () => {
   const [loading, setLoading] = React.useState(false)
 
   /**
+   * Chave para forçar recarregamento da lista (incrementar após exclusão)
+   */
+  const [refreshKey, setRefreshKey] = React.useState(0)
+
+  /**
    * Texto de busca por nome do artista
    */
   const [q, setQ] = React.useState('')
@@ -90,7 +95,7 @@ const Artists: React.FC = () => {
         // Finaliza o estado de carregamento
         setLoading(false)
       })
-  }, [page, q, order])
+  }, [page, q, order, refreshKey])
 
   /**
    * Hooks de navegação e localização
@@ -105,6 +110,25 @@ const Artists: React.FC = () => {
   const [success, setSuccess] = React.useState<string | null>(
     location.state?.success ?? null
   )
+
+  /**
+   * Função chamada ao excluir um artista. Faz a chamada ao serviço e atualiza a lista.
+   */
+  async function handleDelete(id: number) {
+    setError(null)
+    try {
+      await artistService.remove(id)
+      // Incrementa a chave para forçar recarregamento da lista
+      setRefreshKey(k => k + 1)
+      // Exibe mensagem de sucesso
+      setSuccess('Artista excluído com sucesso')
+
+      // Remove a mensagem após 4s
+      setTimeout(() => setSuccess(null), 4000)
+    } catch (e: any) {
+      setError(e.message || 'Erro ao excluir artista')
+    }
+  }
 
   /**
    * Efeito responsável por:
@@ -186,7 +210,7 @@ const Artists: React.FC = () => {
       {success && <div className="alert-success">{success}</div>}
 
       {/* Lista de artistas */}
-      {!error && <ArtistsList artists={artists} />}
+      {!error && <ArtistsList artists={artists} onDelete={handleDelete} />}
 
       {/* Componente de paginação */}
       <Pagination
