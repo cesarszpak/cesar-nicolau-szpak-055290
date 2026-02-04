@@ -55,3 +55,8 @@ springdoc:
     enabled: false
   swagger-ui:
     url: /openapi.yaml
+
+# URL do integrador de regionais (padrão público)
+geia:
+  regionais:
+    url: https://integrador-argus-api.geia.vip/v1/regionais
