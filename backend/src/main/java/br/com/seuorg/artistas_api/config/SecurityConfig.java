@@ -143,6 +143,12 @@ public class SecurityConfig {
                             "/actuator/probes"
                     ).permitAll()
 
+                    // Permite acesso público aos endpoints de leitura de regionais
+                    .requestMatchers(
+                            org.springframework.http.HttpMethod.GET,
+                            "/api/regionais/**"
+                    ).permitAll()
+
                     // Endpoints públicos (login, refresh e criação/listagem básica)
                     .requestMatchers(
                             "/login",

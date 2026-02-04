@@ -20,6 +20,11 @@ public interface RegionalRepository extends JpaRepository<Regional, Long> {
     List<Regional> findByAtivoTrue();
 
     /**
+     * Retorna uma página de regionais ativas (pagination support).
+     */
+    org.springframework.data.domain.Page<Regional> findByAtivoTrue(org.springframework.data.domain.Pageable pageable);
+
+    /**
      * Busca regionais ativas pelo identificador externo.
      */
     List<Regional> findByExternalIdAndAtivoTrue(Integer externalId);
