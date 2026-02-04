@@ -5,6 +5,7 @@ info:
   description: "Especificação OpenAPI estática (gerada manualmente)."
 servers:
   - url: /
+
 paths:
   /login:
     post:
@@ -22,6 +23,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
+
   /refresh:
     post:
       summary: Refresh token
@@ -38,6 +40,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
+
   /api/usuarios:
     post:
       summary: Criar usuário
@@ -64,6 +67,7 @@ paths:
       responses:
         '200':
           description: Lista paginada de usuários
+
   /api/usuarios/{id}:
     parameters:
       - in: path
@@ -92,6 +96,7 @@ paths:
       responses:
         '204':
           description: Deletado
+
   /api/artistas:
     get:
       summary: Listar artistas
@@ -120,6 +125,7 @@ paths:
       responses:
         '201':
           description: Artista criado
+
   /api/artistas/{id}:
     parameters:
       - in: path
@@ -152,6 +158,7 @@ paths:
       responses:
         '204':
           description: Deletado
+
   /api/artistas/buscar/nome:
     get:
       summary: Buscar artista por nome
@@ -169,6 +176,7 @@ paths:
       responses:
         '200':
           description: Página de artistas
+
   /api/albuns:
     get:
       summary: Listar álbuns
@@ -197,6 +205,7 @@ paths:
       responses:
         '201':
           description: Álbum criado
+
   /api/albuns/{id}:
     parameters:
       - in: path
@@ -229,6 +238,7 @@ paths:
       responses:
         '204':
           description: Deletado
+
   /api/albuns/artista/{artistaId}:
     parameters:
       - in: path
@@ -241,6 +251,7 @@ paths:
       responses:
         '200':
           description: Página de álbuns
+
   /api/albuns/buscar/nome:
     get:
       summary: Buscar álbuns por nome
@@ -253,6 +264,7 @@ paths:
       responses:
         '200':
           description: Página de álbuns
+
   /api/capas:
     post:
       summary: Adicionar capas (multipart)
@@ -275,6 +287,7 @@ paths:
       responses:
         '200':
           description: Capas criadas
+
   /api/capas/album/{albumId}:
     parameters:
       - in: path
@@ -287,6 +300,7 @@ paths:
       responses:
         '200':
           description: Lista de capas
+
   /api/capas/{id}/conteudo:
     parameters:
       - in: path
@@ -299,6 +313,64 @@ paths:
       responses:
         '200':
           description: Conteúdo binário
+
+  /api/regionais:
+    get:
+      summary: Listar regionais da Polícia Civil (ativas)
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Página de regionais
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Regional'
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+
+  /api/regionais/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obter regional por ID (local)
+      responses:
+        '200':
+          description: Regional
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Regional'
+
+  /api/regionais/external:
+    get:
+      summary: Recuperar registros da API externa e altera o banco
+      responses:
+        '200':
+          description: Relatório da sincronização com registros externos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalSyncResponse'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -313,7 +385,10 @@ components:
           type: string
         senha:
           type: string
-      required: [email, senha]
+      required:
+        - email
+        - senha
+
     AuthResponse:
       type: object
       properties:
@@ -321,6 +396,7 @@ components:
           type: string
         refreshToken:
           type: string
+
     UsuarioCreate:
       type: object
       properties:
@@ -330,13 +406,19 @@ components:
           type: string
         senha:
           type: string
-      required: [nome, email, senha]
+      required:
+        - nome
+        - email
+        - senha
+
     ArtistaCreate:
       type: object
       properties:
         nome:
           type: string
-      required: [nome]
+      required:
+        - nome
+
     AlbumCreate:
       type: object
       properties:
@@ -344,6 +426,46 @@ components:
           type: string
         artistaId:
           type: integer
-      required: [nome, artistaId]
+      required:
+        - nome
+        - artistaId
+
+    Regional:
+      type: object
+      properties:
+        id:
+          type: integer
+        externalId:
+          type: integer
+        nome:
+          type: string
+        ativo:
+          type: boolean
+        createdAt:
+          type: string
+
+    ExternalRegional:
+      type: object
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+
+    ExternalSyncResponse:
+      type: object
+      properties:
+        mensagem:
+          type: string
+          description: Mensagem de resultado da sincronização (em português)
+        inseridas:
+          type: integer
+        inativadas:
+          type: integer
+        externas:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalRegional'
+
 security:
   - bearerAuth: []
