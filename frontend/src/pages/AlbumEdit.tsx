@@ -13,8 +13,9 @@ import { albumService } from '../services/album.service'
 // Componente responsável pela edição de um álbum
 const AlbumEdit: React.FC = () => {
 
-  // Recupera o parâmetro albumId da rota
-  const { albumId } = useParams<{ albumId: string }>()
+  // Recupera o parâmetro albumId ou id da rota (suporta múltiplos padrões de rota)
+  const params = useParams<{ albumId?: string; id?: string }>()
+  const albumIdStr = params.albumId ?? params.id
 
   // Estado para armazenar os dados iniciais do álbum
   const [initial, setInitial] = React.useState<{
@@ -24,10 +25,10 @@ const AlbumEdit: React.FC = () => {
 
   // Efeito executado ao carregar o componente ou quando o albumId muda
   React.useEffect(() => {
-    if (!albumId) return
+    if (!albumIdStr) return
 
     // Busca os dados do álbum para edição
-    albumService.get(Number(albumId))
+    albumService.get(Number(albumIdStr))
       .then(a => {
         // Define os dados iniciais do formulário
         setInitial({
@@ -38,7 +39,7 @@ const AlbumEdit: React.FC = () => {
       .catch(() => {
         // Erro ignorado propositalmente (pode ser tratado futuramente)
       })
-  }, [albumId])
+  }, [albumIdStr])
 
   // Enquanto os dados iniciais não forem carregados, exibe mensagem de loading
   if (!initial) {

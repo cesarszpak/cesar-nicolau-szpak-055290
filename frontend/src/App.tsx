@@ -182,6 +182,16 @@ function App() {
             }
           />
 
+          {/* Rota para editar álbum diretamente pela lista de álbuns */}
+          <Route
+            path="/albuns/:id/editar"
+            element={
+              <PrivateRoute>
+                <AlbumEdit />
+              </PrivateRoute>
+            }
+          />
+
           {/* Redirecionamento da raiz para a página de artistas */}
           <Route path="/" element={<Navigate to="/artistas" replace />} />
 
