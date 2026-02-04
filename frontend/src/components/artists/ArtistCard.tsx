@@ -47,9 +47,11 @@ const ArtistCard: React.FC<{ artist: Artist; onDelete?: (id: number) => void }> 
 
           {/* Botão para excluir artista (classe btn-danger) */}
           <button
-            onClick={() => {
-              // Confirmação antes de excluir
-              if (!window.confirm('Tem certeza que deseja excluir o artista?')) return
+            onClick={async () => {
+              // Usa o serviço de confirmação (SweetAlert2) para confirmação em português
+              const { confirmDelete } = await import('../../services/confirm.service')
+              const ok = await confirmDelete(`o artista ${artist.nome}`)
+              if (!ok) return
 
               // Se foi passado o callback de onDelete, chama-o
               if (onDelete) onDelete(artist.id)

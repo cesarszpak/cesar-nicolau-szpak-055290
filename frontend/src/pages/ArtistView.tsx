@@ -19,6 +19,7 @@ const AlbumCardLazy = React.lazy(
 ) as unknown as React.FC<{
   album: import('../services/album.service').Album
   showUpload?: boolean
+  onDelete?: (id: number) => Promise<void> | void
 }>
 
 // Componente responsável por exibir os dados de um artista e seus álbuns
@@ -42,6 +43,9 @@ const ArtistView: React.FC = () => {
 
   // Estado para armazenar mensagens de erro
   const [error, setError] = React.useState<string | null>(null)
+
+  // Mensagem de sucesso (em português) exibida após operações
+  const [success, setSuccess] = React.useState<string | null>(null)
 
   // Efeito executado ao carregar o componente ou quando o artistId mudar
   React.useEffect(() => {
@@ -108,6 +112,9 @@ const ArtistView: React.FC = () => {
       {/* Exibe erro */}
       {error && <div className="alert-danger">{error}</div>}
 
+      {/* Mensagem de sucesso */}
+      {success && <div className="alert-success">{success}</div>}
+
       {/* Exibe dados do artista */}
       {artist && (
         <div className="mb-6">
@@ -143,6 +150,16 @@ const ArtistView: React.FC = () => {
                 <AlbumCardLazy
                   album={alb}
                   showUpload={false}
+                  onDelete={async (albumId: number) => {
+                    try {
+                      await albumService.del(albumId)
+                      setAlbums(prev => prev.filter(a => a.id !== albumId))
+                      setSuccess('Álbum excluído com sucesso')
+                      setTimeout(() => setSuccess(null), 4000)
+                    } catch (e: any) {
+                      setError(e.message || 'Erro ao excluir álbum')
+                    }
+                  }}
                 />
               </React.Suspense>
 
