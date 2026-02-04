@@ -48,5 +48,12 @@ const create = (dto: { nome: string }) =>
 
 const get = (id: number) => api.get(`/api/artistas/${id}`) as Promise<Artist>
 
+// Atualiza um artista existente
+const update = (id: number, dto: { nome: string }) =>
+  api.put(`/api/artistas/${id}`, dto) as Promise<Artist>
+
+// Exclui um artista
+const remove = (id: number) => api.del(`/api/artistas/${id}`)
+
 // Exporta os métodos do serviço de artistas
-export const artistService = { list, searchByName, create, get }
+export const artistService = { list, searchByName, create, get, update, remove }
