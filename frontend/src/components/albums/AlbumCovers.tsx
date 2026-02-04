@@ -44,9 +44,11 @@ const AlbumCovers: React.FC<{ albumId: number; reloadTrigger?: number }> = ({ al
   }, [reloadTrigger, load])
 
   // Função responsável por excluir uma capa
-  const handleDelete = (id: number) => {
-    // Solicita confirmação do usuário
-    if (!confirm('Confirma exclusão desta imagem?')) return
+  const handleDelete = async (id: number) => {
+    // Usa o serviço de confirmação (SweetAlert2) com mensagens em português
+    const { confirmDelete } = await import('../../services/confirm.service')
+    const ok = await confirmDelete('a imagem')
+    if (!ok) return
 
     // Remove a capa pelo serviço
     capaService.remove(id)

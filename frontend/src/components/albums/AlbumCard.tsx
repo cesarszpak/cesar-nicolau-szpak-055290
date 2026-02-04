@@ -19,7 +19,7 @@ import { useNavigate } from 'react-router-dom'
 // - showUpload (opcional): suporte previsto, mas não utilizado neste componente
 //   Por padrão é false para evitar exibir upload em listagens.
 //   A tela de detalhes do álbum possui seu próprio formulário de upload.
-const AlbumCard: React.FC<{ album: Album; showUpload?: boolean }> = ({ album }) => {
+const AlbumCard: React.FC<{ album: Album; showUpload?: boolean; onDelete?: (id: number) => Promise<void> | void }> = ({ album, onDelete }) => {
 
   // Hook para navegação entre páginas
   const navigate = useNavigate()
@@ -47,6 +47,53 @@ const AlbumCard: React.FC<{ album: Album; showUpload?: boolean }> = ({ album }) 
             className="btn-info"
           >
             Ver
+          </button>
+
+          {/* Botão para editar álbum (classe btn-warning) */}
+          <button
+            onClick={() => navigate(`/albuns/${album.id}/editar`)}
+            className="btn-warning"
+            title="Editar álbum"
+          >
+            Editar
+          </button>
+
+          {/* Botão para excluir álbum (classe btn-danger) */}
+          <button
+            onClick={async () => {
+              const { confirmDelete } = await import('../../services/confirm.service')
+              const ok = await confirmDelete(`o álbum ${album.nome}`)
+              if (!ok) return
+
+              try {
+                // Se o componente pai passou onDelete, delega a exclusão para o pai
+                // Isso evita que ocorra uma exclusão dupla (o que causa 404 "Álbum não encontrado")
+                if (onDelete) {
+                  await onDelete(album.id)
+                  return
+                }
+
+                // Caso o pai não forneça onDelete, realiza a exclusão local e recarrega
+                const { albumService } = await import('../../services/album.service')
+                await albumService.del(album.id)
+
+                // Mensagem de sucesso em português
+                const Swal = (await import('sweetalert2')).default
+                Swal.fire('Sucesso', 'Álbum excluído com sucesso', 'success')
+
+                // Atualiza a página (fallback)
+                window.location.reload()
+
+              } catch (e: any) {
+                // Exibe mensagem de erro em português
+                const Swal = (await import('sweetalert2')).default
+                Swal.fire('Erro', e?.message || 'Erro ao excluir álbum', 'error')
+              }
+            }}
+            className="btn-danger"
+            title="Excluir álbum"
+          >
+            Excluir
           </button>
         </div>
       </div>

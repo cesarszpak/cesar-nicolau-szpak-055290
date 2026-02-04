@@ -17,6 +17,7 @@ const AlbumCardLazy = React.lazy(
 ) as unknown as React.FC<{
   album: import('../services/album.service').Album
   showUpload?: boolean
+  onDelete?: (id: number) => Promise<void> | void
 }>
 
 // Componente responsável por listar os álbuns com paginação e busca
@@ -61,6 +62,9 @@ const Albums: React.FC = () => {
 
   }, [page, q])
 
+  // Mensagem de sucesso (em português) exibida após operações
+  const [success, setSuccess] = React.useState<string | null>(null)
+
   return (
     <div className="site-container p-6">
 
@@ -92,6 +96,8 @@ const Albums: React.FC = () => {
       {/* Exibe erro */}
       {error && <div className="alert-danger">{error}</div>}
 
+      {/* Mensagem de sucesso */}
+      {success && <div className="alert-success">{success}</div>}
       {/* Grid de cards de álbuns */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {albums.map(a => (
@@ -104,6 +110,16 @@ const Albums: React.FC = () => {
               <AlbumCardLazy
                 album={a}
                 showUpload={false}
+                onDelete={async (albumId: number) => {
+                  try {
+                    await albumService.del(albumId)
+                    setAlbums(prev => prev.filter(p => p.id !== albumId))
+                    setSuccess('Álbum excluído com sucesso')
+                    setTimeout(() => setSuccess(null), 4000)
+                  } catch (e: any) {
+                    setError(e.message || 'Erro ao excluir álbum')
+                  }
+                }}
               />
             </React.Suspense>
 
