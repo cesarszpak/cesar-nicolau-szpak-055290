@@ -99,7 +99,9 @@ paths:
 
   /api/artistas:
     get:
-      summary: Listar artistas
+      summary: Listar artistas (requer autenticação)
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: page
@@ -112,6 +114,10 @@ paths:
       responses:
         '200':
           description: Página de artistas
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
     post:
       summary: Criar artista
       security:
@@ -134,10 +140,16 @@ paths:
         schema:
           type: integer
     get:
-      summary: Obter artista por ID
+      summary: Obter artista por ID (requer autenticação)
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Artista
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
     put:
       summary: Atualizar artista
       security:
@@ -161,7 +173,9 @@ paths:
 
   /api/artistas/buscar/nome:
     get:
-      summary: Buscar artista por nome
+      summary: Buscar artista por nome (requer autenticação)
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: nome
@@ -176,10 +190,16 @@ paths:
       responses:
         '200':
           description: Página de artistas
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
 
   /api/albuns:
     get:
-      summary: Listar álbuns
+      summary: Listar álbuns (requer autenticação)
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: page
@@ -192,6 +212,10 @@ paths:
       responses:
         '200':
           description: Página de álbuns
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
     post:
       summary: Criar álbum
       security:
@@ -214,10 +238,16 @@ paths:
         schema:
           type: integer
     get:
-      summary: Obter álbum por ID
+      summary: Obter álbum por ID (requer autenticação)
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Álbum
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
     put:
       summary: Atualizar álbum
       security:
@@ -247,14 +277,22 @@ paths:
         schema:
           type: integer
     get:
-      summary: Listar álbuns por artista
+      summary: Listar álbuns por artista (requer autenticação)
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Página de álbuns
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
 
   /api/albuns/buscar/nome:
     get:
-      summary: Buscar álbuns por nome
+      summary: Buscar álbuns por nome (requer autenticação)
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: nome
@@ -264,6 +302,10 @@ paths:
       responses:
         '200':
           description: Página de álbuns
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
 
   /api/capas:
     post:
@@ -296,10 +338,16 @@ paths:
         schema:
           type: integer
     get:
-      summary: Listar capas por álbum
+      summary: Listar capas por álbum (requer autenticação)
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Lista de capas
+        '401':
+          description: Não autenticado (token inválido ou ausente)
+        '403':
+          description: Acesso negado
 
   /api/capas/{id}/conteudo:
     parameters:
