@@ -5,6 +5,10 @@ import { Observable } from 'rxjs'
 class AuthFacade {
   user$: Observable<User | null> = authService.user$
 
+  register(nome: string, email: string, senha: string) {
+    return authService.register(nome, email, senha)
+  }
+
   login(email: string, senha: string) {
     return authService.login(email, senha)
   }

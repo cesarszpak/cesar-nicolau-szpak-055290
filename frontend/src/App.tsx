@@ -1,6 +1,7 @@
 import React, { type ReactElement } from 'react' 
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import Login from './pages/Login'
+import Register from './pages/Register'
 
 // Importação lazy da página de artistas para carregamento sob demanda
 const Artists = React.lazy(() => import('./pages/Artists'))
@@ -36,15 +37,23 @@ function PrivateRoute({ children }: { children: ReactElement }) {
 function AuthWatcher() {
   const navigate = useNavigate()
 
+  const location = useLocation()
+
   React.useEffect(() => {
     // Inscreve-se no observable de usuário
     const sub = authFacade.user$.subscribe(user => {
-      if (!user) navigate('/login')
+      // Se não houver usuário autenticado, redireciona APENAS se
+      // estivermos em uma rota protegida (ex.: /artistas, /albuns)
+      if (!user) {
+        const path = location.pathname || ''
+        const isProtected = path.startsWith('/artistas') || path.startsWith('/albuns')
+        if (isProtected) navigate('/login')
+      }
     })
 
     // Remove a inscrição ao desmontar o componente
     return () => sub.unsubscribe()
-  }, [navigate])
+  }, [navigate, location])
 
   return null
 }
@@ -102,6 +111,9 @@ function App() {
 
           {/* Rota pública de login */}
           <Route path="/login" element={<Login />} />
+
+          {/* Rota pública de cadastro */}
+          <Route path="/register" element={<Register />} />
 
           {/* Rota protegida de artistas */}
           <Route

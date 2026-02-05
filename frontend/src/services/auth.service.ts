@@ -108,6 +108,18 @@ class AuthService {
   }
 
   /**
+   * Registra um novo usuário no backend
+   * Realiza login automático após o registro
+   */
+  async register(nome: string, email: string, senha: string) {
+    // Envia requisição de criação de usuário ao backend
+    await api.post('/api/usuarios', { nome, email, senha }, { authRequired: false })
+
+    // Após o registro bem-sucedido, realiza login automático
+    return this.login(email, senha)
+  }
+
+  /**
    * Realiza login no backend
    * Salva token e refresh token
    */
