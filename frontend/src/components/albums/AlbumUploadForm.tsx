@@ -4,6 +4,11 @@ import React from 'react'
 // Importa o serviço de capas e o DTO da capa do álbum
 import { capaService, type CapaAlbumDTO } from '../../services/capa.service'
 
+// Tamanho máximo permitido por arquivo (em MB)
+const MAX_FILE_SIZE_MB = 5
+// Tamanho máximo em bytes (5 MB)
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
 // Componente responsável pelo upload de imagens (capas) de um álbum
 // Props:
 // - albumId: identificador do álbum
@@ -24,6 +29,52 @@ const AlbumUploadForm: React.FC<{
 
   // Estado para armazenar mensagem de sucesso
   const [success, setSuccess] = React.useState<string | null>(null)
+
+  /**
+   * Valida tamanho dos arquivos selecionados
+   * @param fileList lista de arquivos do input
+   * @returns mensagem de erro ou null se tudo está OK
+   */
+  function validateFilesSize(fileList: FileList): string | null {
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i]
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2)
+        return `Arquivo "${file.name}" excede o tamanho máximo permitido. Tamanho: ${sizeMB} MB, Máximo: ${MAX_FILE_SIZE_MB} MB`
+      }
+    }
+    return null
+  }
+
+  // Função executada ao selecionar arquivo
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files
+
+    // Limpa erros anteriores
+    setError(null)
+
+    if (!fileList || fileList.length === 0) {
+      setFiles(null)
+      return
+    }
+
+    // Valida tamanho dos arquivos
+    const sizeError = validateFilesSize(fileList)
+    if (sizeError) {
+      setError(sizeError)
+      setFiles(null)
+      // Limpa o input
+      ;(
+        document.getElementById(`input-files-${albumId}`) as HTMLInputElement | null
+      )?.value && (
+        (document.getElementById(`input-files-${albumId}`) as HTMLInputElement).value = ''
+      )
+      return
+    }
+
+    // Se passou na validação, armazena os arquivos
+    setFiles(fileList)
+  }
 
   // Função executada no envio do formulário
   const onSubmit = async (e: React.FormEvent) => {
@@ -98,7 +149,7 @@ const AlbumUploadForm: React.FC<{
         type="file"
         multiple
         accept="image/*"
-        onChange={e => setFiles(e.target.files)}
+        onChange={onFileChange}
       />
 
       {/* Botão de envio */}
