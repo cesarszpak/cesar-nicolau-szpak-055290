@@ -73,10 +73,10 @@ const SiteNav: React.FC = () => {
           </Link>
 
           <Link
-            to="/artistas"
+            to="/albuns"
             className="block pl-3 pr-4 py-2 text-base font-semibold text-white hover:bg-[#12245c]"
           >
-            Artistas
+            Álbuns
           </Link>
 
           {/* Botão de sair no menu mobile */}

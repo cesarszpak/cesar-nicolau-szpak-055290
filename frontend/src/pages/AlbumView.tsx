@@ -102,6 +102,7 @@ const AlbumView: React.FC = () => {
             <AlbumCovers
               albumId={album.id}
               reloadTrigger={coversReloadTrigger}
+              isDetailPage={true}
             />
           </div>
 

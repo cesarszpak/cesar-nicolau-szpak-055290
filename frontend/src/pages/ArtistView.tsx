@@ -87,15 +87,15 @@ const ArtistView: React.FC = () => {
         <div className="flex gap-1">
           <button
             onClick={() => navigate(`/artistas/${artistId}/albuns/novo`)}
-            className="btn-primary"
+            className="btn-success-md"
           >
-            Cadastrar Álbum
+            Novo Álbum
           </button>
 
           {/* Botão para voltar à lista de artistas */}
           <button
             onClick={() => navigate('/artistas')}
-            className="btn-secondary"
+            className="btn-secondary-md"
           >
             Voltar
           </button>
@@ -127,8 +127,6 @@ const ArtistView: React.FC = () => {
       <div>
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold mb-4">Álbuns</h2>
-
-
         </div>
 
         {/* Mensagem quando não há álbuns */}

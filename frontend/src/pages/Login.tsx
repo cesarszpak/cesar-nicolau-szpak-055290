@@ -87,7 +87,7 @@ const Login: React.FC = () => {
         <div className="btn-group-login">
 
           {/* Botão de submit com estado de loading */}
-          <button className="btn-primary" disabled={loading} type="submit">
+          <button className="btn-primary-md" disabled={loading} type="submit">
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </div>

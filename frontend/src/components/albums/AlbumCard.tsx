@@ -13,6 +13,10 @@ import Card from '../common/Card'
 // Importa o hook de navegação do React Router
 import { useNavigate } from 'react-router-dom'
 
+// Importa ícones (Heroicons) para uso nos botões (Ver / Editar / Excluir)
+// Comentários e textos em português conforme padrão do projeto
+import { EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid'
+
 // Componente responsável por exibir as informações resumidas de um álbum em formato de card
 // Props:
 // - album: dados do álbum a ser exibido
@@ -44,18 +48,21 @@ const AlbumCard: React.FC<{ album: Album; showUpload?: boolean; onDelete?: (id: 
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate(`/albuns/${album.id}`)}
-            className="btn-info"
+            className="btn-primary-md"
+            title="Ver detalhes do álbum"
           >
-            Ver
+            {/* Ícone do botão Ver (Eye) */}
+            <EyeIcon className="h-4 w-4" aria-hidden="true" />
           </button>
 
           {/* Botão para editar álbum (classe btn-warning) */}
           <button
             onClick={() => navigate(`/albuns/${album.id}/editar`)}
-            className="btn-warning"
+            className="btn-warning-md"
             title="Editar álbum"
           >
-            Editar
+            {/* Ícone do botão Editar (Pencil) */}
+            <PencilIcon className="h-4 w-4" aria-hidden="true" />
           </button>
 
           {/* Botão para excluir álbum (classe btn-danger) */}
@@ -90,10 +97,11 @@ const AlbumCard: React.FC<{ album: Album; showUpload?: boolean; onDelete?: (id: 
                 Swal.fire('Erro', e?.message || 'Erro ao excluir álbum', 'error')
               }
             }}
-            className="btn-danger"
+            className="btn-danger-md"
             title="Excluir álbum"
           >
-            Excluir
+            {/* Ícone do botão Excluir (Trash) */}
+            <TrashIcon className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       </div>

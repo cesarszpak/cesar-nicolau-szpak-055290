@@ -74,7 +74,7 @@ const ArtistEdit: React.FC = () => {
 
         <div className="one-input-one-button-per-line">
           {/* Botão de salvar com loading */}
-          <button type="submit" disabled={loading} className="btn-primary">
+          <button type="submit" disabled={loading} className="btn-success-md">
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
 
@@ -82,7 +82,7 @@ const ArtistEdit: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-4 py-2 rounded border"
+            className="btn-secondary-md"
           >
             Cancelar
           </button>

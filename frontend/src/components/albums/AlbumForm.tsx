@@ -109,7 +109,7 @@ const AlbumForm: React.FC<{
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
+            className="btn-success-md"
           >
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
@@ -117,7 +117,7 @@ const AlbumForm: React.FC<{
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-4 py-2 rounded border"
+            className="btn-secondary-md"
           >
             Cancelar
           </button>

@@ -6,6 +6,9 @@ import type { Artist } from '../../services/artist.service'
 import Card from '../common/Card'
 import { useNavigate } from 'react-router-dom'
 
+// Importa ícones (Heroicons) para uso nos botões do card de artista
+import { EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/solid' 
+
 const ArtistCard: React.FC<{ artist: Artist; onDelete?: (id: number) => void }> = ({ artist, onDelete }) => {
   const navigate = useNavigate()
 
@@ -31,18 +34,23 @@ const ArtistCard: React.FC<{ artist: Artist; onDelete?: (id: number) => void }> 
           {/* Botão para visualizar artista e seus álbuns */}
           <button
             onClick={() => navigate(`/artistas/${artist.id}`)}
-            className="btn-info"
+            className="btn-primary-md"
+            title="Ver detalhes do artista"
           >
-            Ver
+            {/* Ícone do botão Ver (Eye) */}
+            <EyeIcon className="h-4 w-4" aria-hidden="true" />
+            {/* Ver */}
           </button>
 
           {/* Botão para editar artista (classe btn-warning) */}
           <button
             onClick={() => navigate(`/artistas/${artist.id}/editar`)}
-            className="btn-warning"
+            className="btn-warning-md"
             title="Editar artista"
           >
-            Editar
+            {/* Ícone do botão Editar (Pencil) */}
+            <PencilIcon className="h-4 w-4" aria-hidden="true" />
+            {/* Editar */}
           </button>
 
           {/* Botão para excluir artista (classe btn-danger) */}
@@ -56,10 +64,12 @@ const ArtistCard: React.FC<{ artist: Artist; onDelete?: (id: number) => void }> 
               // Se foi passado o callback de onDelete, chama-o
               if (onDelete) onDelete(artist.id)
             }}
-            className="btn-danger"
+            className="btn-danger-md"
             title="Excluir artista"
           >
-            Excluir
+            {/* Ícone do botão Excluir (Trash) */}
+            <TrashIcon className="h-4 w-4" aria-hidden="true" />
+            {/* Excluir */}
           </button>
 
         </div>

@@ -105,7 +105,7 @@ const AlbumUploadForm: React.FC<{
       <div className="flex items-center gap-2">
         <button
           type="submit"
-          className="btn-primary-md"
+          className="btn-success-md"
           disabled={loading}
         >
           {loading ? 'Enviando...' : 'Cadastrar imagens'}

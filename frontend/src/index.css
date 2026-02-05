@@ -4,24 +4,27 @@
 @tailwind utilities;
 
 /* Classes genéricas de botões utilizando Tailwind com @apply */
-.btn-primary { @apply bg-blue-500 text-white text-sm px-2 py-1 rounded hover:bg-blue-600 transition-colors cursor-pointer }
-.btn-primary-md { @apply bg-blue-500 text-white text-base px-2 py-1 rounded hover:bg-blue-600 transition-colors cursor-pointer }
-.btn-info { @apply bg-cyan-500 text-white text-sm px-2 py-1 rounded hover:bg-cyan-600 transition-colors cursor-pointer }
-.btn-info-md { @apply bg-cyan-500 text-white text-base px-2 py-1 rounded hover:bg-cyan-600 transition-colors cursor-pointer }
-.btn-success { @apply bg-green-500 text-white text-sm px-2 py-1 rounded hover:bg-green-600 transition-colors cursor-pointer }
-.btn-success-md { @apply bg-green-500 text-white text-base px-2 py-1 rounded hover:bg-green-600 transition-colors cursor-pointer }
-.btn-warning { @apply bg-yellow-500 text-white text-sm px-2 py-1 rounded hover:bg-yellow-600 transition-colors cursor-pointer }
-.btn-warning-md { @apply bg-yellow-500 text-white text-base px-2 py-1 rounded hover:bg-yellow-600 transition-colors cursor-pointer }
-.btn-danger { @apply bg-red-500 text-white text-sm px-2 py-1 rounded hover:bg-red-600 transition-colors cursor-pointer }
-.btn-danger-md { @apply bg-red-500 text-white text-base px-2 py-1 rounded hover:bg-red-600 transition-colors cursor-pointer }
-.btn-secondary { @apply bg-gray-500 text-white text-sm px-2 py-1 rounded hover:bg-gray-600 transition-colors cursor-pointer dark:bg-gray-600 dark:hover:bg-gray-700 }
-.btn-secondary-md { @apply bg-gray-500 text-white text-base px-2 py-1 rounded hover:bg-gray-600 transition-colors cursor-pointer dark:bg-gray-600 dark:hover:bg-gray-700 }
+/* Padrão: alinha ícones ao centro, padroniza padding e espaçamento */
+.btn-primary { @apply bg-blue-500 text-white text-sm px-2 py-1 rounded hover:bg-blue-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-primary-md { @apply bg-blue-500 text-white text-base px-2 py-1 rounded hover:bg-blue-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-info { @apply bg-cyan-500 text-white text-sm px-2 py-1 rounded hover:bg-cyan-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-info-md { @apply bg-cyan-500 text-white text-base px-2 py-1 rounded hover:bg-cyan-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-success { @apply bg-green-500 text-white text-sm px-2 py-1 rounded hover:bg-green-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-success-md { @apply bg-green-500 text-white text-base px-2 py-1 rounded hover:bg-green-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-warning { @apply bg-yellow-500 text-white text-sm px-2 py-1 rounded hover:bg-yellow-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-warning-md { @apply bg-yellow-500 text-white text-base px-2 py-1 rounded hover:bg-yellow-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-danger { @apply bg-red-500 text-white text-sm px-2 py-1 rounded hover:bg-red-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-danger-md { @apply bg-red-500 text-white text-base px-2 py-1 rounded hover:bg-red-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed }
+.btn-secondary { @apply bg-gray-500 text-white text-sm px-2 py-1 rounded hover:bg-gray-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-600 dark:hover:bg-gray-700 }
+.btn-secondary-md { @apply bg-gray-500 text-white text-base px-2 py-1 rounded hover:bg-gray-600 transition-colors cursor-pointer inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-600 dark:hover:bg-gray-700 }
 
 /* Generic card */
 .card-album { @apply bg-white rounded shadow p-4 }
 
 /* Album cover image */
 .album-cover { @apply w-full h-40 object-cover rounded }
+/* Album cover image - página de detalhes (maior) */
+.album-cover-detail { @apply w-full h-48 object-cover rounded }
 
 
 /* =========================

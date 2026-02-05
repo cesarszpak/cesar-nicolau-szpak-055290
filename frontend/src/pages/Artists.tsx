@@ -158,7 +158,7 @@ const Artists: React.FC = () => {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => navigate('/artistas/novo')}
-            className="btn-primary"
+            className="btn-success-md"
           >
             Novo Artista
           </button>
@@ -177,13 +177,13 @@ const Artists: React.FC = () => {
               setQ(e.target.value)
               setPage(0) // Reseta para a primeira página ao realizar a busca
             }}
-            className="form-input-login"
+            className="form-input"
           />
 
           {/* Botão para alternar a ordem de listagem */}
           <button
             onClick={() => setOrder(order === 'asc' ? 'desc' : 'asc')}
-            className="btn-primary"
+            className="btn-info-md"
             title="Alternar ordem"
           >
             {order === 'asc' ? 'Crescente' : 'Decrescente'}

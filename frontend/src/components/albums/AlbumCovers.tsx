@@ -11,7 +11,10 @@ import { capaService } from '../../services/capa.service'
 // Props:
 // - albumId: identificador do álbum
 // - reloadTrigger (opcional): usado para forçar o recarregamento das capas
-const AlbumCovers: React.FC<{ albumId: number; reloadTrigger?: number }> = ({ albumId, reloadTrigger }) => {
+// - isDetailPage (opcional): indica se está na página de detalhes (padrão: false)
+//   false = listagem compacta em cards (3 colunas)
+//   true = listagem expandida na página de detalhes (2 colunas para melhor visualização)
+const AlbumCovers: React.FC<{ albumId: number; reloadTrigger?: number; isDetailPage?: boolean }> = ({ albumId, reloadTrigger, isDetailPage = false }) => {
 
   // Estado com a lista de capas do álbum
   const [covers, setCovers] = React.useState<CapaAlbumDTO[]>([])
@@ -68,9 +71,16 @@ const AlbumCovers: React.FC<{ albumId: number; reloadTrigger?: number }> = ({ al
   // Exibe mensagem caso não haja capas
   if (!covers.length) return <div className="text-gray-500">Nenhuma capa encontrada</div>
 
+  // Define o grid com base no contexto
+  // Página de detalhes: 2 colunas (imagens maiores)
+  // Página de listagem: 3 colunas em sm+ (imagens compactas)
+  const gridClass = isDetailPage 
+    ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+    : 'grid grid-cols-2 sm:grid-cols-3 gap-2'
+
   return (
     // Grid responsivo para exibição das capas
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+    <div className={gridClass}>
       {covers.map(c => (
         <div
           key={c.id}
@@ -80,7 +90,7 @@ const AlbumCovers: React.FC<{ albumId: number; reloadTrigger?: number }> = ({ al
           <img
             src={c.url}
             alt={c.nomeArquivo}
-            className="album-cover"
+            className={isDetailPage ? 'album-cover-detail' : 'album-cover'}
             onError={(e) => {
               const img = e.currentTarget as HTMLImageElement
 

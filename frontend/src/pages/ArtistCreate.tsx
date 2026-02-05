@@ -88,7 +88,7 @@ const ArtistCreate: React.FC = () => {
         {/* Ações do formulário */}
         <div className="one-input-one-button-per-line">
           {/* Botão de envio */}
-          <button type="submit" disabled={loading} className="btn-primary">
+          <button type="submit" disabled={loading} className="btn-success-md">
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
 
@@ -96,7 +96,7 @@ const ArtistCreate: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-4 py-2 rounded border"
+            className="btn-secondary-md"
           >
             Cancelar
           </button>
