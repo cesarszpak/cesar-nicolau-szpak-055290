@@ -1,5 +1,6 @@
 package br.com.seuorg.artistas_api.application.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.net.URI;
  * Esta classe centraliza as operações de upload e exclusão de arquivos
  * em um bucket S3 ou serviço compatível (ex: MinIO).
  */
+@Slf4j
 @Service
 public class S3StorageService {
 
@@ -56,6 +58,7 @@ public class S3StorageService {
      */
     @PostConstruct
     private void init() {
+        log.info("Inicializando S3StorageService com endpoint: {}", endpoint);
         var creds = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
         var b = S3Client.builder()
                 .credentialsProvider(creds)
@@ -65,6 +68,7 @@ public class S3StorageService {
         // para evitar que o SDK use virtual-host style (p.ex. bucket.minio), o que
         // causa resolução de nomes como 'capas.minio' que não existem na rede.
         if (endpoint != null && !endpoint.isEmpty()) {
+            log.info("Configurando endpoint customizado: {}", endpoint);
             b = b.endpointOverride(URI.create(endpoint))
                  .serviceConfiguration(software.amazon.awssdk.services.s3.S3Configuration.builder()
                          .pathStyleAccessEnabled(true)
@@ -72,6 +76,7 @@ public class S3StorageService {
         }
 
         this.s3 = b.build();
+        log.info("S3Client inicializado");
 
         // Try to initialize MinIO client (optional) for presigned url generation
         try {
@@ -80,9 +85,11 @@ public class S3StorageService {
                     .credentials(accessKey, secretKey)
                     .build();
             this.minioClient = m;
+            log.info("MinioClient inicializado com sucesso");
         } catch (NoClassDefFoundError | Exception e) {
             // MinIO client not available, presigned generation will fallback
             this.minioClient = null;
+            log.warn("MinioClient não disponível ou falhou na inicialização: {}", e.getMessage());
         }
     }
 
@@ -102,23 +109,63 @@ public class S3StorageService {
             long size,
             String contentType
     ) {
+        log.info("Iniciando upload para bucket: {}, key: {}", bucket, key);
+        
         // Garantir que o bucket exista - se não existe, tenta criar (útil para ambientes de desenvolvimento com MinIO)
-        try {
-            s3.headBucket(software.amazon.awssdk.services.s3.model.HeadBucketRequest.builder().bucket(bucket).build());
-        } catch (software.amazon.awssdk.services.s3.model.S3Exception e) {
-            // Se o erro indica que o bucket não existe, tenta criar
-            if (e.statusCode() == 404) {
-                try {
-                    s3.createBucket(software.amazon.awssdk.services.s3.model.CreateBucketRequest.builder().bucket(bucket).build());
-                } catch (Exception ex) {
-                    // fallback: rethrow original exception
+        // Primeiro tenta com MinIO client se disponível (mais confiável para MinIO)
+        if (minioClient != null) {
+            log.info("Usando MinioClient para verificar/criar bucket");
+            try {
+                // Verifica se o bucket existe
+                boolean bucketExists = minioClient.bucketExists(
+                        io.minio.BucketExistsArgs.builder()
+                                .bucket(bucket)
+                                .build()
+                );
+                
+                log.info("Bucket '{}' existe? {}", bucket, bucketExists);
+                
+                // Se não existe, cria o bucket
+                if (!bucketExists) {
+                    log.info("Criando bucket: {}", bucket);
+                    minioClient.makeBucket(
+                            io.minio.MakeBucketArgs.builder()
+                                    .bucket(bucket)
+                                    .build()
+                    );
+                    log.info("Bucket '{}' criado com sucesso", bucket);
+                }
+            } catch (Exception e) {
+                // Fallback: continua mesmo se falhar na criação via MinIO
+                // o upload pode ainda assim funcionar se o bucket existe
+                log.error("Erro ao verificar/criar bucket com MinioClient: {}", e.getMessage(), e);
+            }
+        } else {
+            log.info("MinioClient não disponível, usando S3Client");
+            // Fallback para S3Client quando MinIO client não está disponível
+            try {
+                s3.headBucket(software.amazon.awssdk.services.s3.model.HeadBucketRequest.builder().bucket(bucket).build());
+                log.info("Bucket '{}' existe no S3", bucket);
+            } catch (software.amazon.awssdk.services.s3.model.S3Exception e) {
+                // Se o erro indica que o bucket não existe, tenta criar
+                if (e.statusCode() == 404) {
+                    log.info("Bucket '{}' não existe, tentando criar com S3Client", bucket);
+                    try {
+                        s3.createBucket(software.amazon.awssdk.services.s3.model.CreateBucketRequest.builder().bucket(bucket).build());
+                        log.info("Bucket '{}' criado com sucesso via S3Client", bucket);
+                    } catch (Exception ex) {
+                        // fallback: rethrow original exception
+                        log.error("Erro ao criar bucket com S3Client: {}", ex.getMessage(), ex);
+                        throw e;
+                    }
+                } else {
+                    log.error("Erro ao verificar bucket: status={}, message={}", e.statusCode(), e.getMessage());
                     throw e;
                 }
-            } else {
-                throw e;
             }
         }
 
+        log.info("Iniciando putObject para bucket: {}, key: {}, size: {}", bucket, key, size);
         PutObjectRequest por = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
@@ -126,6 +173,7 @@ public class S3StorageService {
                 .build();
 
         s3.putObject(por, RequestBody.fromInputStream(inputStream, size));
+        log.info("Upload concluído para key: {}", key);
     }
 
     /**

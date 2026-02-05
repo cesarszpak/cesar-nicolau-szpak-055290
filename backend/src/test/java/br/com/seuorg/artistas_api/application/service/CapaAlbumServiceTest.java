@@ -137,4 +137,57 @@ class CapaAlbumServiceTest {
         verify(s3, times(1)).delete(eq("capas"), eq("capas-album/albums/1/test.jpg"));
         verify(capaRepo, times(1)).delete(eq(c));
     }
+
+    /**
+     * Testa a criação automática do bucket no S3 quando ele não existe.
+     *
+     * Valida que durante um upload, se o bucket não existir (HeadBucket retorna 404),
+     * o serviço tenta criar o bucket automaticamente.
+     */
+    @Test
+    void criar_deveCriarBucketAutomaticamenteSeNaoExistir() throws IOException {
+        Album a = new Album();
+        a.setId(1L);
+
+        // Simula a existência do álbum
+        when(albumRepo.findById(1L)).thenReturn(Optional.of(a));
+
+        // Cria um arquivo multipart simulado
+        MockMultipartFile file = new MockMultipartFile(
+                "arquivos",
+                "album-cover.jpg",
+                "image/jpeg",
+                "image data".getBytes()
+        );
+
+        CapaAlbum saved = new CapaAlbum();
+        saved.setId(10L);
+        saved.setAlbum(a);
+        saved.setChave("capas-album/albums/1/album-cover.jpg");
+        saved.setNomeArquivo("album-cover.jpg");
+
+        // Simula a persistência da capa
+        when(capaRepo.save(any())).thenReturn(saved);
+
+        // Simula presigned URL
+        when(s3.generatePresignedUrl(anyString(), anyString(), any())).thenReturn("http://minio:9000/capas/presigned");
+
+        List<?> resp = service.criar(1L, List.of((MultipartFile) file));
+
+        // Verificações
+        assertFalse(resp.isEmpty());
+        
+        // Verifica que o upload foi chamado
+        verify(s3, times(1))
+                .upload(eq("capas"), anyString(), any(), anyLong(), eq("image/jpeg"));
+        
+        // Verifica que a capa foi persistida
+        verify(capaRepo, times(1)).save(any());
+
+        // Verifica que o DTO retornado contém a URL
+        Object dto0 = resp.get(0);
+        assertTrue(dto0 instanceof br.com.seuorg.artistas_api.application.dto.CapaAlbumResponseDTO);
+        var dto = (br.com.seuorg.artistas_api.application.dto.CapaAlbumResponseDTO) dto0;
+        assertNotNull(dto.getUrl());
+    }
 }

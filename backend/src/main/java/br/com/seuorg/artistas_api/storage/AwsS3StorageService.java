@@ -1,5 +1,6 @@
 package br.com.seuorg.artistas_api.storage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -25,6 +26,7 @@ import java.time.Duration;
  * download, exclusão de arquivos e geração de URLs pré-assinadas
  * no serviço S3 (ou compatível, como MinIO).
  */
+@Slf4j
 @Service
 public class AwsS3StorageService implements S3StorageService {
 
@@ -33,6 +35,14 @@ public class AwsS3StorageService implements S3StorageService {
 
     // Presigner usado para gerar URLs temporárias (pré-assinadas)
     private final S3Presigner presigner;
+    
+    // MinIO client para operações de bucket (opcional)
+    private final io.minio.MinioClient minioClient;
+    
+    // Endpoint do S3 (armazenado para uso posterior)
+    private final String endpoint;
+    private final String accessKey;
+    private final String secretKey;
 
     /**
      * Construtor responsável por configurar o cliente S3 e o presigner.
@@ -45,6 +55,12 @@ public class AwsS3StorageService implements S3StorageService {
             @Value("${s3.secret-key}") String secretKey,
             @Value("${s3.region:us-east-1}") String region
     ) {
+        this.endpoint = endpoint;
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+        
+        log.info("Inicializando AwsS3StorageService com endpoint: {}", endpoint);
+        
         // Cria o provedor de credenciais estáticas
         StaticCredentialsProvider creds = StaticCredentialsProvider.create(
                 AwsBasicCredentials.create(accessKey, secretKey)
@@ -68,6 +84,18 @@ public class AwsS3StorageService implements S3StorageService {
                 .region(r)
                 .credentialsProvider(creds)
                 .build();
+        
+        // Try to initialize MinIO client (optional) for bucket operations
+        try {
+            this.minioClient = io.minio.MinioClient.builder()
+                    .endpoint(endpoint)
+                    .credentials(accessKey, secretKey)
+                    .build();
+            log.info("MinioClient inicializado com sucesso");
+        } catch (Exception e) {
+            log.warn("MinioClient não disponível ou falhou na inicialização: {}", e.getMessage());
+            throw new RuntimeException("Falha ao inicializar MinIO client", e);
+        }
     }
 
     /**
@@ -81,6 +109,11 @@ public class AwsS3StorageService implements S3StorageService {
      */
     @Override
     public void upload(String bucket, String key, InputStream data, long size, String contentType) throws IOException {
+        log.info("Iniciando upload para bucket: {}, key: {}, size: {}", bucket, key, size);
+        
+        // Garantir que o bucket exista - se não existe, tenta criar
+        ensureBucketExists(bucket);
+        
         PutObjectRequest req = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
@@ -92,10 +125,48 @@ public class AwsS3StorageService implements S3StorageService {
         if (size <= 0) {
             // Caso o tamanho não seja conhecido, lê todos os bytes para garantir o envio
             byte[] bytes = data.readAllBytes();
+            log.info("Upload de {} bytes (tamanho desconhecido)", bytes.length);
             s3.putObject(req, RequestBody.fromBytes(bytes));
         } else {
             // Upload normal utilizando stream
+            log.info("Upload de stream com {} bytes", size);
             s3.putObject(req, RequestBody.fromInputStream(data, size));
+        }
+        
+        log.info("Upload concluído para key: {}", key);
+    }
+    
+    /**
+     * Garante que um bucket existe, criando-o se necessário
+     */
+    private void ensureBucketExists(String bucket) {
+        if (minioClient != null) {
+            try {
+                // Verifica se o bucket existe
+                boolean bucketExists = minioClient.bucketExists(
+                        io.minio.BucketExistsArgs.builder()
+                                .bucket(bucket)
+                                .build()
+                );
+                
+                log.info("Bucket '{}' existe? {}", bucket, bucketExists);
+                
+                // Se não existe, cria o bucket
+                if (!bucketExists) {
+                    log.info("Criando bucket: {}", bucket);
+                    minioClient.makeBucket(
+                            io.minio.MakeBucketArgs.builder()
+                                    .bucket(bucket)
+                                    .build()
+                    );
+                    log.info("Bucket '{}' criado com sucesso", bucket);
+                }
+            } catch (Exception e) {
+                log.error("Erro ao verificar/criar bucket com MinioClient: {}", e.getMessage(), e);
+                throw new RuntimeException("Falha ao verificar/criar bucket: " + bucket, e);
+            }
+        } else {
+            log.warn("MinioClient não disponível, não posso criar bucket automaticamente");
         }
     }
 
