@@ -1,4 +1,3 @@
--- Inserir tipos iniciais
 -- Inserir artistas iniciais
 INSERT INTO artistas (nome, created_at) VALUES
 ('Serj Tankian', CURRENT_TIMESTAMP),
@@ -39,7 +38,7 @@ INSERT INTO usuarios (nome, email, senha, created_at)
 VALUES (
   'Admin',
   'admin@example.com',
-  '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7pQ1VZ1tcHTTX3e8DqRLV.m',
+  '$2b$12$oMoeGu4Lfs4KA6LmhEPw1eGsIMVVnDdMK0lmX1hhM2c3WvtkJZ7Le',
   CURRENT_TIMESTAMP
 );
 
