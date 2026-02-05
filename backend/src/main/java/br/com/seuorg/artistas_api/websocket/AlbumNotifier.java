@@ -1,7 +1,10 @@
 package br.com.seuorg.artistas_api.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import br.com.seuorg.artistas_api.application.dto.AlbumResponseDTO;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,8 +28,11 @@ public class AlbumNotifier {
     // Conjunto de sessões WebSocket ativas (thread-safe)
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
 
-    // Mapper responsável por serializar o DTO para JSON
-    private final ObjectMapper mapper = new ObjectMapper();
+        // Mapper responsável por serializar o DTO para JSON
+        // Registra o JavaTimeModule para suportar tipos de data/hora do java.time
+        private final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     /**
      * Registra uma nova sessão WebSocket.
@@ -56,8 +62,14 @@ public class AlbumNotifier {
      */
     public void notifyNewAlbum(AlbumResponseDTO dto) {
         try {
-            // Converte o DTO do álbum para JSON
-            String payload = mapper.writeValueAsString(dto);
+            // Converte o DTO do álbum para JSON e adiciona o campo
+            // "tipo" para indicar que se trata de um evento de criação.
+            // Isso permite que o frontend filtre eventos (por exemplo,
+            // ignorar atualizações) e exiba apenas notificações de
+            // álbuns recém-criados.
+            ObjectNode node = (ObjectNode) mapper.valueToTree(dto);
+            node.put("tipo", "CRIADO");
+            String payload = mapper.writeValueAsString(node);
             TextMessage msg = new TextMessage(payload);
 
             // Envia a mensagem para todas as sessões abertas

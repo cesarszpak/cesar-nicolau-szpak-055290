@@ -157,6 +157,12 @@ public class SecurityConfig {
                             "/api/artistas"
                     ).permitAll()
 
+                    // Permite conexão WebSocket sem autenticação (handshake)
+                    // O frontend abre uma conexão WS para receber notificações de novos álbuns
+                    .requestMatchers(
+                            "/ws/**"
+                    ).permitAll()
+
                     // Qualquer outra rota exige autenticação
                     .anyRequest().authenticated()
             )
