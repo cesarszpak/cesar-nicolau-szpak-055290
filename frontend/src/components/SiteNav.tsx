@@ -43,7 +43,10 @@ const SiteNav: React.FC = () => {
         </div>
 
         {/* Botão de sair (desktop) */}
-        <div className="hidden sm:flex sm:items-center">
+        <div className="hidden sm:flex sm:items-center sm:gap-3">
+          <Link to="/perfil" className="nav-link">
+            Perfil
+          </Link>
           <button onClick={handleLogout} className="btn-primary">
             Sair
           </button>
@@ -77,6 +80,13 @@ const SiteNav: React.FC = () => {
             className="block pl-3 pr-4 py-2 text-base font-semibold text-white hover:bg-[#12245c]"
           >
             Álbuns
+          </Link>
+
+          <Link
+            to="/perfil"
+            className="block pl-3 pr-4 py-2 text-base font-semibold text-white hover:bg-[#12245c]"
+          >
+            Perfil
           </Link>
 
           {/* Botão de sair no menu mobile */}

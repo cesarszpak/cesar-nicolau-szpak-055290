@@ -318,6 +318,9 @@ Senha: 123456
 #### Comandos Úteis Docker
 
 ```bash
+# Executar testes
+docker compose run --rm api-test
+
 # Ver logs da API
 docker compose logs -f api
 
@@ -339,9 +342,6 @@ docker compose up -d
 
 # Executar comandos dentro do container da API
 docker compose exec api bash
-
-# Executar testes
-docker compose run --rm api-test
 ```
 
 ### Opção 2: Instalação Manual
