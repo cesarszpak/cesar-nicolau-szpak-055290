@@ -302,7 +302,7 @@ Todos os containers devem estar com STATUS "Up".
 **4. Acessar a Aplicação**
 
 - Frontend: http://localhost:3000
-- API Swagger: http://localhost:8080/swagger-ui.html
+- API Swagger: http://localhost:8080/swagger-ui/index.html
 - MinIO Console: http://localhost:9001 (usuario: minioadmin, senha: minioadmin)
 
 **5. Dados de Acesso Padrão**
@@ -905,13 +905,6 @@ Guns N' Roses
 - Use Your Illusion I
 - Use Your Illusion II
 - Greatest Hits
-```
-
-### Usuário de Teste
-
-```
-Email: usuario@teste.com
-Senha: senha123
 ```
 
 ## Requisitos Implementados

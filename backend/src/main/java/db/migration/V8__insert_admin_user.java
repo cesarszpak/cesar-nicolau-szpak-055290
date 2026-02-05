@@ -13,7 +13,7 @@ import java.sql.PreparedStatement;
  *
  * Insere apenas se não existir um usuário com o mesmo email.
  */
-public class V5__insert_admin_user extends BaseJavaMigration {
+public class V8__insert_admin_user extends BaseJavaMigration {
   @Override
   public void migrate(Context context) throws Exception {
     final String nome = "Admin";
