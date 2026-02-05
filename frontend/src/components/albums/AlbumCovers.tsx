@@ -79,7 +79,7 @@ const AlbumCovers: React.FC<{ albumId: number; reloadTrigger?: number; isDetailP
   // Página de detalhes: 2 colunas (imagens maiores)
   // Página de listagem: 3 colunas em sm+ (imagens compactas)
   const gridClass = isDetailPage 
-    ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+    ? 'grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-8 gap-4'
     : 'grid grid-cols-2 sm:grid-cols-3 gap-2'
 
   return (

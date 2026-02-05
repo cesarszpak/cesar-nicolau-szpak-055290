@@ -62,11 +62,18 @@ const AlbumView: React.FC = () => {
           {/* <div className="text-sm text-gray-600">Informações e capas</div> */}
         </div>
 
-        {/* Botão para voltar à página anterior */}
+        {/* Botão para voltar para a página do artista */}
         <div>
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (album && album.artistaId) {
+                navigate(`/artistas/${album.artistaId}`)
+              } else {
+                navigate(-1)
+              }
+            }}
             className="btn-secondary-md"
+            disabled={!album}
           >
             Voltar
           </button>
