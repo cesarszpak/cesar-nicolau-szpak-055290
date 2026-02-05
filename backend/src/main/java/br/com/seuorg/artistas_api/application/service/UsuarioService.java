@@ -95,6 +95,19 @@ public class UsuarioService {
     }
 
     /**
+     * Busca um usuário pelo email.
+     *
+     * @param email Email do usuário
+     * @return Dados do usuário encontrado
+     */
+    public UsuarioResponseDTO obterPorEmail(String email) {
+        Usuario usuario = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        return convertToResponseDTO(usuario);
+    }
+
+    /**
      * Lista todos os usuários de forma paginada.
      *
      * @param pageable Informações de paginação

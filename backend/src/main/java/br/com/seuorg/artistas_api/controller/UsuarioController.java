@@ -17,6 +17,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Controller responsável por gerenciar usuários e autenticação.
@@ -33,6 +35,18 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
         this.jwtUtil = jwtUtil;
         this.refreshTokenService = refreshTokenService;
+    }
+
+    /**
+     * Obtém os dados do usuário atualmente autenticado.
+     *
+     * @return Dados do usuário autenticado
+     */
+    @GetMapping("/api/me")
+    public ResponseEntity<UsuarioResponseDTO> me() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return ResponseEntity.ok(usuarioService.obterPorEmail(email));
     }
 
     /**
