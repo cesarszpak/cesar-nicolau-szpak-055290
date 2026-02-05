@@ -9,8 +9,9 @@ import { artistService, type Artist } from '../services/artist.service'
 
 // Importa o serviço de álbuns e o tipo Album
 import { albumService, type Album } from '../services/album.service'
+import Pagination from '../components/Pagination'
 
-// Quantidade de álbuns exibidos inicialmente
+// Quantidade de álbuns por página (padrão)
 const PAGE_SIZE = 8
 
 // Carregamento lazy do componente AlbumCard para melhorar performance
@@ -38,6 +39,10 @@ const ArtistView: React.FC = () => {
   // Estado para armazenar os álbuns do artista
   const [albums, setAlbums] = React.useState<Album[]>([])
 
+  // Estado de paginação
+  const [page, setPage] = React.useState<number>(0)
+  const [totalPages, setTotalPages] = React.useState<number>(0)
+
   // Estado para controle de carregamento
   const [loading, setLoading] = React.useState(false)
 
@@ -54,22 +59,23 @@ const ArtistView: React.FC = () => {
     setLoading(true)
     setError(null)
 
-    // Carrega os dados do artista e a lista de álbuns em paralelo
+    // Carrega os dados do artista e a página atual de álbuns
     Promise.all([
       artistService.get(artistId),
-      albumService.listByArtist(artistId, 0, PAGE_SIZE)
+      albumService.listByArtist(artistId, page, PAGE_SIZE)
     ])
       .then(([a, albPage]) => {
         // Atualiza estado com os dados do artista
         setArtist(a as Artist)
 
-        // Atualiza estado com os álbuns do artista
+        // Atualiza estado com os álbuns da página
         setAlbums(albPage.content)
+        setTotalPages(albPage.totalPages)
       })
       .catch(e => setError((e as Error).message))
       .finally(() => setLoading(false))
 
-  }, [artistId])
+  }, [artistId, page])
 
   return (
     <div className="site-container p-6">
@@ -163,6 +169,11 @@ const ArtistView: React.FC = () => {
 
             </div>
           ))}
+        </div>
+
+        {/* Componente de paginação reutilizável (mesmo layout de /albuns e /artistas) */}
+        <div className="mt-6">
+          <Pagination page={page} totalPages={totalPages} onChange={p => setPage(p)} />
         </div>
       </div>
 

@@ -18,17 +18,26 @@ const AlbumForm: React.FC<{
   const navigate = useNavigate()
 
   // Parâmetros da rota
-  const params = useParams()
+  const params = useParams<{ id?: string; albumId?: string; artistaId?: string }>()
 
-  // Recupera o ID do artista a partir da rota
-  const artistaIdFromRoute = Number(params.id ?? params.artistaId)
+  // Determina se estamos em rotas do tipo:
+  // - /artistas/:id/albuns/novo (criação)  => params.id é artistaId
+  // - /artistas/:id/albuns/:albumId/editar (edição) => params.albumId é albumId
+  // - /albuns/:id/editar (edição direta) => params.id é albumId
+  // Calcula o albumId corretamente para evitar que, em modo de edição,
+  // a aplicação acabe chamando o endpoint de criação por engano.
+  let albumId: number | undefined
+  if (params.albumId) {
+    albumId = Number(params.albumId)
+  } else if (params.id && window.location.pathname.startsWith('/albuns')) {
+    // rota /albuns/:id/editar
+    albumId = Number(params.id)
+  } else {
+    albumId = undefined
+  }
 
-  // Recupera o ID do álbum (quando estiver em modo de edição)
-  const albumId = params.albumId
-    ? Number(params.albumId)
-    : (params.id && params['albumId']
-        ? Number(params['albumId'])
-        : undefined)
+  // Recupera o ID do artista a partir da rota ou dos dados iniciais (quando em edição)
+  const artistaIdFromRoute = Number(params.id ?? params.artistaId ?? initial?.artistaId)
 
   // Estado para o nome do álbum
   const [nome, setNome] = React.useState(initial?.nome ?? '')
@@ -83,8 +92,8 @@ const AlbumForm: React.FC<{
   return (
     <div className="site-container p-6">
 
-      {/* Título da página */}
-      <h1 className="text-2xl font-bold mb-4">Novo Álbum</h1>
+      {/* Título da página (ajusta para edição ou criação) */}
+      <h1 className="text-2xl font-bold mb-4">{albumId ? 'Editar Álbum' : 'Novo Álbum'}</h1>
 
       {/* Exibe erro, se houver */}
       {error && <div className="alert-danger">{error}</div>}

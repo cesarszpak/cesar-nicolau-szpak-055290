@@ -36,10 +36,19 @@ class AlbumNotificationsService {
     // Evita criar múltiplas conexões WebSocket
     if (this.socket && this.socket.readyState === WebSocket.OPEN) return
 
-    // Monta a URL do WebSocket a partir da URL da API
-    const url =
-      (import.meta.env.VITE_API_URL ?? 'http://localhost:8080')
-        .replace(/^http/, 'ws') + '/ws/albums'
+    // Monta a URL do WebSocket usando a mesma origem do frontend.
+    // Assim a conexão passa pelo proxy (Nginx) em desenvolvimento
+    // e evitamos problemas de handshake/CORS entre navegadores.
+    const url = (() => {
+      // Se uma URL da API estiver configurada, utiliza-a (útil em dev remoto)
+      if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL.replace(/^http/, 'ws') + '/ws/albums'
+      }
+
+      // Caso contrário, conecta na mesma origem da página (relativa)
+      const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
+      return `${proto}://${window.location.host}/ws/albums`
+    })()
 
     // Cria a conexão WebSocket
     this.socket = new WebSocket(url)

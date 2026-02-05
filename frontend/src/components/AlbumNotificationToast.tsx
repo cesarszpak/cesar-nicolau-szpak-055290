@@ -23,7 +23,9 @@ export default function AlbumNotificationToast() {
 
     // Inscrição no observable de notificações
     const sub = albumFacade.notification$.subscribe(n => {
-      if (n) {
+      // Filtra apenas eventos de criação (tipo === 'CRIADO')
+      // para evitar exibir o toast quando um álbum for apenas atualizado.
+      if (n && (n as any).tipo === 'CRIADO') {
         // Atualiza o estado com a nova notificação
         setNote(n)
 
