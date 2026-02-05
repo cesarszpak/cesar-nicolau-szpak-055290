@@ -66,7 +66,7 @@ const AlbumView: React.FC = () => {
         <div>
           <button
             onClick={() => navigate(-1)}
-            className="btn-secondary"
+            className="btn-secondary-md"
           >
             Voltar
           </button>

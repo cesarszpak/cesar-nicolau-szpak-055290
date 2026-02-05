@@ -1,4 +1,4 @@
-# Artistas API - Sistema de Gestão de Artistas e Álbuns
+# PROJETO PRÁTICO - IMPLEMENTAÇÃO FULL STACK SÊNIOR - JAVA + ANGULAR/REACT
 
 API RESTful Full Stack para gerenciamento de artistas e seus álbuns desenvolvida em Java (Spring Boot) com frontend em React/TypeScript. A aplicação oferece autenticação JWT, upload de capas de álbuns via MinIO (S3), sincronização de dados externos e notificações em tempo real via WebSocket.
 

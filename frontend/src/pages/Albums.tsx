@@ -105,7 +105,7 @@ const Albums: React.FC = () => {
 
             {/* Suspense para carregamento lazy do card */}
             <React.Suspense
-              fallback={<div className="text-gray-500">Carregando...</div>}
+              fallback={<div className="loading-screen"><div className="spinner" /></div>}
             >
               <AlbumCardLazy
                 album={a}

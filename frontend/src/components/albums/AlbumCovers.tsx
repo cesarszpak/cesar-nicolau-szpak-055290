@@ -63,7 +63,11 @@ const AlbumCovers: React.FC<{ albumId: number; reloadTrigger?: number; isDetailP
   }
 
   // Exibe estado de carregamento
-  if (loading) return <div className="text-gray-500">Carregando capas...</div>
+  if (loading) return (
+    <div className="loading-screen">
+      <div className="spinner" />
+    </div>
+  )
 
   // Exibe erro, se houver
   if (error) return <div className="text-red-500">{error}</div>

@@ -106,7 +106,7 @@ function App() {
       <AuthWatcher />
 
       {/* Suspense para carregamento das páginas lazy */}
-      <React.Suspense fallback={<div className="p-6">Carregando...</div>}>
+      <React.Suspense fallback={<div className="loading-screen"><div className="spinner" /></div>}>
         <Routes>
 
           {/* Rota pública de login */}
