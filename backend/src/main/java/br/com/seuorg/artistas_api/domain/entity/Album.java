@@ -6,10 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entidade que representa um Álbum de um Artista.
- * Cada álbum pertence a um único artista.
+ * Cada álbum pertence a um único artista e pode ter várias capas com exclusão em cascata.
  */
 @Entity
 @Table(name = "albuns")
@@ -31,6 +32,10 @@ public class Album {
     @ManyToOne
     @JoinColumn(name = "artista_id", nullable = false)
     private Artista artista;
+
+    /** Relacionamento One-to-Many com CapaAlbum (exclusão em cascata) */
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CapaAlbum> capas;
 
     /** Data de criação do registro, preenchida automaticamente */
     @Column(name = "created_at", nullable = false, updatable = false)

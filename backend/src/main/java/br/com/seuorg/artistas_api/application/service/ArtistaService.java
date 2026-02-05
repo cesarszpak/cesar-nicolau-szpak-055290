@@ -3,8 +3,11 @@ package br.com.seuorg.artistas_api.application.service;
 import br.com.seuorg.artistas_api.application.dto.ArtistaCreateDTO;
 import br.com.seuorg.artistas_api.application.dto.ArtistaResponseDTO;
 import br.com.seuorg.artistas_api.domain.entity.Artista;
+import br.com.seuorg.artistas_api.domain.entity.Album;
 import br.com.seuorg.artistas_api.domain.repository.AlbumRepository;
 import br.com.seuorg.artistas_api.domain.repository.ArtistaRepository;
+import br.com.seuorg.artistas_api.domain.repository.CapaAlbumRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import java.util.List;
  * atualização e exclusão de artistas, além de calcular a
  * quantidade de álbuns associados a cada artista.
  */
+@Slf4j
 @Service
 public class ArtistaService {
 
@@ -28,15 +32,30 @@ public class ArtistaService {
     /** Repositório de álbuns, utilizado para contagem de álbuns por artista */
     private final AlbumRepository albumRepository;
 
+    /** Repositório de capas de álbuns para exclusão em cascata */
+    private final CapaAlbumRepository capaAlbumRepository;
+
+    /** Serviço de capas para deletar arquivos do S3 */
+    private final CapaAlbumService capaAlbumService;
+
     /**
      * Construtor com injeção de dependências.
      *
      * @param repository repositório de artistas
      * @param albumRepository repositório de álbuns
+     * @param capaAlbumRepository repositório de capas de álbuns
+     * @param capaAlbumService serviço de capas de álbuns
      */
-    public ArtistaService(ArtistaRepository repository, AlbumRepository albumRepository) {
+    public ArtistaService(
+            ArtistaRepository repository,
+            AlbumRepository albumRepository,
+            CapaAlbumRepository capaAlbumRepository,
+            CapaAlbumService capaAlbumService
+    ) {
         this.repository = repository;
         this.albumRepository = albumRepository;
+        this.capaAlbumRepository = capaAlbumRepository;
+        this.capaAlbumService = capaAlbumService;
     }
 
     /**
@@ -157,6 +176,11 @@ public class ArtistaService {
     /**
      * Remove um artista pelo seu ID.
      *
+     * Realiza exclusão em cascata:
+     * 1. Exclui todas as capas de álbuns (deletando arquivos do S3)
+     * 2. Exclui todos os álbuns
+     * 3. Exclui o artista
+     *
      * @param id identificador do artista
      */
     public void deletar(Long id) {
@@ -165,7 +189,30 @@ public class ArtistaService {
             throw new RuntimeException("Artista não encontrado");
         }
 
+        // Busca todos os álbuns do artista
+        List<Album> albuns = albumRepository.findByArtistaId(id);
+
+        log.info("Deletando artista ID={} com {} álbums", id, albuns.size());
+
+        // Para cada álbum, delete as capas (inclusive dos arquivos do S3)
+        for (Album album : albuns) {
+            // Busca todas as capas do álbum
+            capaAlbumRepository.findByAlbumId(album.getId()).forEach(capa -> {
+                log.info("Deletando capa de álbum: id={}, chave={}", capa.getId(), capa.getChave());
+                // Usa o serviço para deletar (remove do S3 e do banco)
+                capaAlbumService.excluir(capa.getId());
+            });
+
+            // Delete o álbum (cascade já foi tratado acima)
+            log.info("Deletando álbum: id={}, nome={}", album.getId(), album.getNome());
+            albumRepository.deleteById(album.getId());
+        }
+
+        // Delete o artista
+        log.info("Deletando artista: id={}", id);
         repository.deleteById(id);
+
+        log.info("Artista ID={} deletado com sucesso", id);
     }
 
     /**

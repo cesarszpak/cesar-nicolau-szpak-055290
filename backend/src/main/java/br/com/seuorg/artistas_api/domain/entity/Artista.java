@@ -5,10 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Entidade que representa um Artista.
- * Um artista pode ter vários álbuns (relacionamento unidirecional na entidade Album).
+ * Um artista pode ter vários álbuns com exclusão em cascata.
  */
 @Entity
 @Table(name = "artistas")
@@ -25,6 +26,10 @@ public class Artista {
     /** Nome do artista, campo obrigatório */
     @Column(nullable = false)
     private String nome;
+
+    /** Relacionamento One-to-Many com álbuns (exclusão em cascata) */
+    @OneToMany(mappedBy = "artista", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Album> albuns;
 
     /** Data de criação do registro, preenchida automaticamente */
     @Column(name = "created_at", nullable = false, updatable = false)
