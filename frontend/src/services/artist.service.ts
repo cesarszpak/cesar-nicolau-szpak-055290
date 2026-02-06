@@ -26,7 +26,7 @@ export interface Page<T> {
 }
 
 // Recupera a lista de artistas com paginação
-const list = (page = 0, size = 10) =>
+const list = (page = 0, size = 9) =>
   api.get(
     `/api/artistas?page=${page}&size=${size}`
   ) as Promise<Page<Artist>>
@@ -36,7 +36,7 @@ const searchByName = (
   nome: string,
   ordem: 'asc' | 'desc' = 'asc',
   page = 0,
-  size = 10
+  size = 9
 ) =>
   api.get(
     `/api/artistas/buscar/nome?nome=${encodeURIComponent(nome)}&ordem=${ordem}&page=${page}&size=${size}`
