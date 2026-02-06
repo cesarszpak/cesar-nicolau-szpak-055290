@@ -4,8 +4,8 @@ import React from 'react'
 // Importa o tipo Album
 import type { Album } from '../../services/album.service'
 
-// Importa o componente responsável por exibir as capas do álbum
-import AlbumCovers from './AlbumCovers'
+// Importa o componente responsável por exibir as capas em um slider automático
+import AlbumImageSlider from '../AlbumImageSlider'
 
 // Importa o componente Card reutilizável
 import Card from '../common/Card'
@@ -106,9 +106,9 @@ const AlbumCard: React.FC<{ album: Album; showUpload?: boolean; onDelete?: (id: 
         </div>
       </div>
 
-      {/* Exibição das capas do álbum */}
+      {/* Exibição das capas do álbum em um slider automático */}
       <div className="mb-3">
-        <AlbumCovers albumId={album.id} />
+        <AlbumImageSlider albumId={album.id} />
       </div>
 
     </Card>

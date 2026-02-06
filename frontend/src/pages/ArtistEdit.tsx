@@ -78,13 +78,13 @@ const ArtistEdit: React.FC = () => {
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
 
-          {/* Botão de cancelar volta para a página anterior */}
+          {/* Botão Voltar: leva para a listagem de artistas */}
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/artistas')}
             className="btn-secondary-md"
           >
-            Cancelar
+            Voltar
           </button>
         </div>
       </form>

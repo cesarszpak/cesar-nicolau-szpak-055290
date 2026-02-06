@@ -110,6 +110,7 @@ const AlbumForm: React.FC<{
             value={nome}
             onChange={e => setNome(e.target.value)}
             className="form-input"
+            placeholder="Nome do álbum"
           />
         </div>
 
@@ -125,10 +126,18 @@ const AlbumForm: React.FC<{
 
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              // Se tivermos o artista associado, vai direto para a página do artista
+              if (artistaId) {
+                navigate(`/artistas/${artistaId}`)
+              } else {
+                // Caso contrário, vai para a listagem de artistas
+                navigate('/artistas')
+              }
+            }}
             className="btn-secondary-md"
           >
-            Cancelar
+            Voltar
           </button>
         </div>
 

@@ -92,13 +92,13 @@ const ArtistCreate: React.FC = () => {
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
 
-          {/* Botão para cancelar e voltar */}
+          {/* Botão para voltar para a listagem de artistas */}
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/artistas')}
             className="btn-secondary-md"
           >
-            Cancelar
+            Voltar
           </button>
         </div>
       </form>

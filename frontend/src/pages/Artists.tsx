@@ -177,7 +177,7 @@ const Artists: React.FC = () => {
               setQ(e.target.value)
               setPage(0) // Reseta para a primeira página ao realizar a busca
             }}
-            className="form-input"
+            className="form-input w-full md:w-96"
           />
 
           {/* Botão para alternar a ordem de listagem */}
@@ -190,10 +190,7 @@ const Artists: React.FC = () => {
           </button>
         </div>
 
-        {/* Indicador de página atual */}
-        <div className="text-sm text-gray-600">
-          Página {page + 1} de {totalPages || 1}
-        </div>
+        {/* Removido indicador de página conforme solicitado */}
       </div>
 
       {/* Indicador de carregamento */}
