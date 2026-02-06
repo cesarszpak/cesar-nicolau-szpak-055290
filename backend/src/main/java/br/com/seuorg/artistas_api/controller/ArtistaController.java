@@ -41,7 +41,7 @@ public class ArtistaController {
     @GetMapping
     public ResponseEntity<Page<ArtistaResponseDTO>> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "9") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(artistaService.listarTodos(pageable));
     }
@@ -72,7 +72,7 @@ public class ArtistaController {
             @RequestParam String nome,
             @RequestParam(defaultValue = "asc") String ordem,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "9") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
